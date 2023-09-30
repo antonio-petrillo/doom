@@ -1,0 +1,10 @@
+#+title: Readme
+* Doom config
+My doom emacs config should work both on mac, win and linux.
+* Note
++ remember ~all-the-icons-install-fonts~
++ remember ~nerd-icons-install-fonts~
++ remember to clone ~org directory~
++ on windows
+  + [[https://earvingad.github.io/posts/doom_emacs_windows/][guide 1]]
+  + [[https://reddit.com/r/emacs/comments/u3nl5v/emacs_281_windows_native_comp_newbie_questions][native comp]]
