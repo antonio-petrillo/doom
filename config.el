@@ -7,7 +7,11 @@
 
 (setq display-line-numbers-type 'relative)
 
-(setq org-directory "~/Documents/Org/")
+(setq org-directory "~/Documents/Org/"
+      org-agenda-files `(
+                         ,(concat org-directory "agenda/" "agenda.org")
+                         ,(concat org-directory "agenda/" "scheduling.org")
+                         ))
 
 (setq doom-font (font-spec :family "JetBrains Mono" :style "Regular" :size 18)
       doom-big-font (font-spec :family "JetBrains Mono" :size 32)
@@ -122,30 +126,30 @@
 (after! persp-mode
   (setq persp-emacsclient-init-frame-behaviour-override "main")
 
-(when (eq system-type 'darwin)
-  (setenv "PATH"
-          (concat "/Library/TeX/texbin" ":"
-		  (getenv "PATH"))))
+  (when (eq system-type 'darwin)
+    (setenv "PATH"
+            (concat "/Library/TeX/texbin" ":"
+		    (getenv "PATH"))))
 
-(when (eq system-type 'windows-nt)
-  (setq default-directory "C:/Users/antof/"))
+  (when (eq system-type 'windows-nt)
+    (setq default-directory "C:/Users/antof/"))
 
-(use-package! selectric-mode
-  :commands selectric-mode)
+  (use-package! selectric-mode
+    :commands selectric-mode)
 
-(use-package! google-translate
-  :init
-  (setq google-translate-translation-directions-alist
-        '(("it" . "en") ("en" . "it")))
-  (setq google-translate-default-source-language "it")
-  (setq google-translate-default-target-language "en")
-  (map! :leader
-        (:prefix ("l" . "language")
-                 :desc "translate" "t" #'google-translate-smooth-translate
-                 :desc "translate (choice lang)" "T" #'google-translate-query-translate
-                 :desc "translate at point" "p" #'google-translate-at-point
-                 :desc "translate at point" "P" #'google-translate-at-point-reverse))
-  (set-popup-rule! "*Google Translate*" :side 'bottom :ttl 3 :select t)) (setq doom-modeline-persp-name t))
+  (use-package! google-translate
+    :init
+    (setq google-translate-translation-directions-alist
+          '(("it" . "en") ("en" . "it")))
+    (setq google-translate-default-source-language "it")
+    (setq google-translate-default-target-language "en")
+    (map! :leader
+          (:prefix ("l" . "language")
+           :desc "translate" "t" #'google-translate-smooth-translate
+           :desc "translate (choice lang)" "T" #'google-translate-query-translate
+           :desc "translate at point" "p" #'google-translate-at-point
+           :desc "translate at point" "P" #'google-translate-at-point-reverse))
+    (set-popup-rule! "*Google Translate*" :side 'bottom :ttl 3 :select t)) (setq doom-modeline-persp-name t))
 
 (use-package! rotate
   :init
@@ -157,44 +161,77 @@
 
 (map! :leader
       (:prefix ("r" . "rotate")
-               :desc "rotate window" "r" #'rotate-window
-               :desc "rotate window" "w" #'rotate-window
-               :desc "rotate layout" "l" #'rotate-layout))
-
-(after! ace-window
-  (map! :leader
-        (:prefix ("w" . "window")
-         :desc "ace window" "w" #'ace-window)))
+       :desc "rotate window" "r" #'rotate-window
+       :desc "rotate window" "w" #'rotate-window
+       :desc "rotate layout" "l" #'rotate-layout)
+      (:prefix ("w" . "window")
+       :desc "ace window" "w" #'ace-window))
 
 (use-package! denote)
 (use-package! denote-menu)
 
 (after! denote-menu
 
+  (defun nto/journal-regex-today ()
+    "Build a regex that match the entry journal of today."
+    (format "%sT[0-9]\\{6\\}.*_%s"
+            (format-time-string "%Y%m%d")
+            denote-journal-extras-keyword))
+
+  (defun nto/journal-entry-exist-p ()
+    (car (directory-files denote-journal-extras-directory t (nto/journal-regex-today))))
+
+  (defun nto/journal ()
+    (interactive)
+    (let ((today (nto/journal-entry-exist-p)))
+      (if today
+          (find-file today)
+        (denote-journal-extras-new-entry))))
+
+  (defun nto/dired-denote ()
+    (interactive)
+    (dired denote-directory))
+
   (require 'denote-org-dblock)
+  (require 'denote-journal-extras)
+
   (setq denote-directory (expand-file-name "notes" org-directory))
+  (setq denote-journal-extras-directory (expand-file-name "journal" org-directory))
   (setq denote-prompts '(title keywords))
+  (setq denote-journal-extras-title-format 'day-date-month-year)
   (setq denote-file-type 'org)
   (setq denote-known-keywords '("journals" "tirocinio" "clojure" "java" "project"
-                                "ideas" "emacs" "cli" "book" "health" "pattern"
+                                "ideas" "emacs" "cli" "book" "health" "pattern" "engineering"
                                 "architecture" "art" "math" "master" "philosophy"
-                                "security" "music" "films" "series"))
+                                "security" "music" "films" "series" "meta"))
+  (setq denote-templates
+        `((example . ,(concat "* heading 1"
+                              "\n\n"
+                              "* another heading 2"
+                              "\n\n"))))
 
   (add-hook! 'dired-mode-hook #'denote-dired-mode)
   (add-hook! 'find-file-hook #'denote-link-buttonize-buffer)
 
   (map! :leader
-        (:prefix ("n" . "denotes")
+        (:prefix ("d" . "denote")
          :desc "find" "f" #'denote
+         :desc "subdir find" "s" #'denote-create-note-in-subdirectory
+         :desc "search" "S" #'nto/dired-denote
          :desc "dired" "d" #'list-denotes
+         :desc "journal" "j" #'nto/journal
          :desc "date" "D" #'denote-date
-         :desc "rename" "r" #'denote-dired-rename-file
+         :desc "rename" "R" #'denote-rename-file
+         :desc "rename" "r" #'denote-rename-file-using-front-matter
          :desc "insert" "i" #'denote-link-or-create
-         :desc "link" "l" #'denote-find-link
-         :desc "backlink" "b" #'denote-find-backlink
+         :desc "link" "l" #'denote-insert-link
+         :desc "backlink" "b" #'denote-backlinks
+         :desc "template" "t" #'denote-template-prompt
          :desc "query" "q" #'denote-org-dblock-insert-links))
 
+  ;; FIXME: these shortcut doesn't work in denote-menu mode
   (define-key denote-menu-mode-map (kbd "c") #'denote-menu-clear-filters)
+  (define-key denote-menu-mode-map (kbd "g") #'denote-global-menu)
   (define-key denote-menu-mode-map (kbd "/ r") #'denote-menu-filter)
   (define-key denote-menu-mode-map (kbd "/ k") #'denote-menu-filter-by-keyword)
   (define-key denote-menu-mode-map (kbd "/ o") #'denote-menu-filter-out-keyword)
