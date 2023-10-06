@@ -191,6 +191,12 @@
   :custom
   (org-roam-directory (expand-file-name "roam" org-directory))
   (org-roam-db-location (expand-file-name "db/org-roam.db" org-directory))
+  (org-roam-dailies-directory "daily/")
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry
+      "* %?"
+      :target (file+head "%<%d-%m-%Y>.org"
+                         "#+title: %<%Y-%m-%d>\n"))))
   :init
   (setq org-roam-completion-everywhere nil)
   (map! :leader
@@ -210,7 +216,15 @@
           :desc "remove" "r" #'org-roam-alias-remove)
          (:prefix ("r" . "refs")
           :desc "add" "a" #'org-roam-ref-add
-          :desc "remove" "r" #'org-roam-ref-remove))))
+          :desc "remove" "r" #'org-roam-ref-remove)
+         (:prefix ("D" . "date")
+          :desc "today" "t" #'org-roam-dailies-goto-today
+          :desc "tomorrow" "T" #'org-roam-dailies-goto-tomorrow
+          :desc "yesterday" "y" #'org-roam-dailies-goto-yesterday
+          :desc "previous" "p" #'org-roam-dailies-goto-previous-note
+          :desc "next" "n" #'org-roam-dailies-goto-next-note
+          :desc "calendar" "c" #'org-roam-dailies-goto-date
+          :desc "dired"    "d" #'org-roam-dailies-find-directory))))
 
 (use-package! org-roam-ui
   :after org-roam
@@ -245,7 +259,7 @@
         deft-recursive t)
   (map! :leader
         (:prefix ("d" . "notes")
-                 (:prefix ("d" . "deft")
+                 (:prefix ("t" . "temp")
                   :desc "deft ui" "f" #'deft
                   :desc "new" "n" #'deft-new-file-named
                   :desc "search" "s" #'deft-find-file
