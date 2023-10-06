@@ -14,5 +14,7 @@
   :recipe (:host github
            :repo "antonio-petrillo/drop-frame"))
 
-(package! denote)
-(package! denote-menu)
+(package! org-roam-ui)
+(package! consult-org-roam)
+
+(package! org-ql)

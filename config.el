@@ -1,6 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-(setq doom-theme 'anti-zenburn)
+(setq doom-theme 'gruber-darker)
 
 (setq user-full-name "Antonio Petrillo"
       user-mail-address "antonio.petrillo4@studenti.unina.it")
@@ -167,72 +167,86 @@
       (:prefix ("w" . "window")
        :desc "ace window" "w" #'ace-window))
 
-(use-package! denote)
-(use-package! denote-menu)
+(defun nto/org-roam-node-has-any-tags-p (node tags)
+  "Predicate that return `t' if node has at least one of `tags', `nil' otherwise"
+  (seq-intersection (org-roam-node-tags node) tags))
 
-(after! denote-menu
+(defun nto/org-roam-node-filter-by-tags-any ()
+  "Find and open an Org-roam node if it has any of the specified tags."
+  (interactive)
+  (let ((tags (completing-read-multiple "select tags: " (org-roam-tag-completions))))
+    (org-roam-node-find nil nil (lambda (node) (nto/org-roam-node-has-any-tags-p node tags)))))
 
-  (defun nto/journal-regex-today ()
-    "Build a regex that match the entry journal of today."
-    (format "%sT[0-9]\\{6\\}.*_%s"
-            (format-time-string "%Y%m%d")
-            denote-journal-extras-keyword))
+(defun nto/org-roam-node-has-all-tags-p (node tags)
+  "Predicate that return `t' if node has all the `tags', `nil' otherwise"
+  (not (seq-difference tags (org-roam-node-tags node))))
 
-  (defun nto/journal-entry-exist-p ()
-    (car (directory-files denote-journal-extras-directory t (nto/journal-regex-today))))
+(defun nto/org-roam-node-filter-by-tags-all ()
+  "Find and open an Org-roam node if it has all the specified tags."
+  (interactive)
+  (let ((tags (sort (completing-read-multiple "select tags: " (org-roam-tag-completions)) #'string-lessp)))
+    (org-roam-node-find nil nil (lambda (node) (nto/org-roam-node-has-all-tags-p node tags)))))
 
-  (defun nto/journal ()
-    (interactive)
-    (let ((today (nto/journal-entry-exist-p)))
-      (if today
-          (find-file today)
-        (denote-journal-extras-new-entry))))
-
-  (defun nto/dired-denote ()
-    (interactive)
-    (dired denote-directory))
-
-  (require 'denote-org-dblock)
-  (require 'denote-journal-extras)
-
-  (setq denote-directory (expand-file-name "notes" org-directory))
-  (setq denote-journal-extras-directory (expand-file-name "journal" org-directory))
-  (setq denote-prompts '(title keywords))
-  (setq denote-journal-extras-title-format 'day-date-month-year)
-  (setq denote-file-type 'org)
-  (setq denote-known-keywords '("journals" "tirocinio" "clojure" "java" "project"
-                                "ideas" "emacs" "cli" "book" "health" "pattern" "engineering"
-                                "architecture" "art" "math" "master" "philosophy"
-                                "security" "music" "films" "series" "meta"))
-  (setq denote-templates
-        `((example . ,(concat "* heading 1"
-                              "\n\n"
-                              "* another heading 2"
-                              "\n\n"))))
-
-  (add-hook! 'dired-mode-hook #'denote-dired-mode)
-  (add-hook! 'find-file-hook #'denote-link-buttonize-buffer)
-
+(use-package! org-roam
+  :custom
+  (org-roam-directory (expand-file-name "roam" org-directory))
+  (org-roam-db-location (expand-file-name "db/org-roam.db" org-directory))
+  :init
+  (setq org-roam-completion-everywhere nil)
   (map! :leader
-        (:prefix ("d" . "denote")
-         :desc "find" "f" #'denote
-         :desc "subdir find" "s" #'denote-create-note-in-subdirectory
-         :desc "search" "S" #'nto/dired-denote
-         :desc "dired" "d" #'list-denotes
-         :desc "journal" "j" #'nto/journal
-         :desc "date" "D" #'denote-date
-         :desc "rename" "R" #'denote-rename-file
-         :desc "rename" "r" #'denote-rename-file-using-front-matter
-         :desc "insert" "i" #'denote-link-or-create
-         :desc "link" "l" #'denote-insert-link
-         :desc "backlink" "b" #'denote-backlinks
-         :desc "template" "t" #'denote-template-prompt
-         :desc "query" "q" #'denote-org-dblock-insert-links))
+        (:prefix ("d" . "notes")
+         :desc "node" "f" #'org-roam-node-find
+         :desc "buffer" "b" #'org-roam-buffer-toggle
+         :desc "gen ID" "I" #'org-id-get-create
+         :desc "insert" "i" #'org-roam-node-insert
+         (:prefix ("F" . "filter")
+          :desc "all tags" "A" #'nto/org-roam-node-filter-by-tags-all
+          :desc "any tags" "a" #'nto/org-roam-node-filter-by-tags-any)
+         (:prefix ("t" . "tags")
+          :desc "add" "a" #'org-roam-tag-add
+          :desc "remove" "r" #'org-roam-tag-remove)
+         (:prefix ("a" . "alias")
+          :desc "add" "a" #'org-roam-alias-add
+          :desc "remove" "r" #'org-roam-alias-remove)
+         (:prefix ("r" . "refs")
+          :desc "add" "a" #'org-roam-ref-add
+          :desc "remove" "r" #'org-roam-ref-remove))))
 
-  ;; FIXME: these shortcut doesn't work in denote-menu mode
-  (define-key denote-menu-mode-map (kbd "c") #'denote-menu-clear-filters)
-  (define-key denote-menu-mode-map (kbd "g") #'denote-global-menu)
-  (define-key denote-menu-mode-map (kbd "/ r") #'denote-menu-filter)
-  (define-key denote-menu-mode-map (kbd "/ k") #'denote-menu-filter-by-keyword)
-  (define-key denote-menu-mode-map (kbd "/ o") #'denote-menu-filter-out-keyword)
-  (define-key denote-menu-mode-map (kbd "e") #'denote-menu-export-to-dired))
+(use-package! org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        ort-roam-ui-open-on-start nil))
+
+(use-package! consult-org-roam
+  :after org-roam
+  :diminish consult-org-roam-mode
+  :init
+  (require 'consult-org-roam)
+  (consult-org-roam-mode 1)
+  (map! :leader
+        (:prefix ("d" . "notes")
+                 (:prefix ("c" . "consult")
+                  :desc "find" "f" #'consult-org-roam-file-find
+                  :desc "backlinks" "b" #'consult-org-roam-backlinks
+                  :desc "forward links" "l" #'consult-org-roam-forward-links
+                  :desc "search" "s" #'consult-org-roam-search)))
+  :custom
+  (consult-org-roam-grep-func #'consult-ripgrep)
+  (consult-org-roam-buffer-after-buffers t))
+
+;; I use deft for quick notes that I made during lesson
+;; Each deft will be inserted later inside org roam
+(after! deft
+  (setq deft-directory (expand-file-name "deft" org-directory)
+        deft-extensions '("org" "txt" "tex" "md")
+        deft-recursive t)
+  (map! :leader
+        (:prefix ("d" . "notes")
+                 (:prefix ("d" . "deft")
+                  :desc "deft ui" "f" #'deft
+                  :desc "new" "n" #'deft-new-file-named
+                  :desc "search" "s" #'deft-find-file
+                  :desc "delete" "d" #'deft-delete-file))))
