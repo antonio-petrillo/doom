@@ -1,6 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-(setq doom-theme 'gruber-darker)
+(setq doom-theme 'doom-gruvbox-light)
 
 (setq user-full-name "Antonio Petrillo"
       user-mail-address "antonio.petrillo4@studenti.unina.it")
@@ -192,11 +192,6 @@
   (org-roam-directory (expand-file-name "roam" org-directory))
   (org-roam-db-location (expand-file-name "db/org-roam.db" org-directory))
   (org-roam-dailies-directory "daily/")
-  (org-roam-dailies-capture-templates
-   '(("d" "default" entry
-      "* %?"
-      :target (file+head "%<%d-%m-%Y>.org"
-                         "#+title: %<%Y-%m-%d>\n"))))
   :init
   (setq org-roam-completion-everywhere nil)
   (map! :leader
@@ -253,14 +248,15 @@
 
 ;; I use deft for quick notes that I made during lesson
 ;; Each deft will be inserted later inside org roam
-(after! deft
-  (setq deft-directory (expand-file-name "deft" org-directory)
-        deft-extensions '("org" "txt" "tex" "md")
-        deft-recursive t)
-  (map! :leader
-        (:prefix ("d" . "notes")
-                 (:prefix ("t" . "temp")
-                  :desc "deft ui" "f" #'deft
-                  :desc "new" "n" #'deft-new-file-named
-                  :desc "search" "s" #'deft-find-file
-                  :desc "delete" "d" #'deft-delete-file))))
+(setq deft-directory (expand-file-name "deft" org-directory)
+      deft-extensions '("org" "txt" "tex" "md")
+      deft-recursive t)
+(map! :leader
+      (:prefix ("d" . "notes")
+               (:prefix ("T" . "temp")
+                :desc "deft ui" "f" #'deft
+                :desc "new" "n" #'deft-new-file-named
+                :desc "search" "s" #'deft-find-file
+                :desc "delete" "d" #'deft-delete-file)))
+
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
