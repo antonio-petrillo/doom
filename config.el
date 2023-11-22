@@ -1,6 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-(setq doom-theme 'doom-gruvbox-light)
+(setq doom-theme 'gruber-darker)
 
 (setq user-full-name "Antonio Petrillo"
       user-mail-address "antonio.petrillo4@studenti.unina.it")
@@ -8,10 +8,7 @@
 (setq display-line-numbers-type 'relative)
 
 (setq org-directory "~/Documents/Org/"
-      org-agenda-files `(
-                         ,(concat org-directory "agenda/" "agenda.org")
-                         ,(concat org-directory "agenda/" "scheduling.org")
-                         ))
+      org-hide-emphasis-markers nil)
 
 (setq doom-font (font-spec :family "JetBrains Mono" :style "Regular" :size 18)
       doom-big-font (font-spec :family "JetBrains Mono" :size 32)
@@ -66,14 +63,13 @@
        :desc "Grep file" "g" #'consult-ripgrep
        :desc "Find file" "f" #'consult-find)
       (:prefix ("j" . "jump")
-       :desc "jump to char" "j" #'avy-goto-char
+       :desc "jump to char" "j" #'avy-goto-char-timer
+       :desc "jump to char (single)" "c" #'avy-goto-char
        :desc "jump to char 2" "J" #'avy-goto-char-2
        :desc "jump to word" "w" #'avy-goto-word-0
        :desc "jump to line" "l" #'avy-goto-line))
 
-
 (after! evil
-  ;; evil-multiedit
   (evil-define-key 'normal 'global
     (kbd "M-a")   #'evil-multiedit-match-symbol-and-next
     (kbd "M-A")   #'evil-multiedit-match-symbol-and-prev)
@@ -82,7 +78,7 @@
     (kbd "M-a")   #'evil-multiedit-match-and-next
     (kbd "M-A")   #'evil-multiedit-match-and-prev)
   (evil-define-key '(visual normal) 'global
-    (kbd "C-M-a") #'evil-multiedit-restore)
+    (kbd "C-M-d") #'evil-multiedit-restore)
 
   (with-eval-after-load 'evil-mutliedit
     (evil-define-key 'multiedit 'global
@@ -116,6 +112,8 @@
     (kbd "C-j") #'vterm-send-down)
 
   (evil-define-key '(insert normal) 'global
+    (kbd "C-d") #'delete-char
+    (kbd "M-d") #'kill-word
     (kbd "C-n") #'next-line
     (kbd "C-p") #'previous-line))
 
@@ -260,3 +258,86 @@
                 :desc "delete" "d" #'deft-delete-file)))
 
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+(defun nto/org-toggle-emphasis-markers ()
+  (interactive)
+  (setq org-hide-emphasis-markers (not org-hide-emphasis-markers)))
+
+
+;; (org-roam-db-location (expand-file-name "db/org-roam.db" org-directory))
+
+(setq inbox (expand-file-name "agenda/inbox.org" org-directory)     ;; gtd inbox
+      someday (expand-file-name "agenda/someday.org" org-directory) ;; store info about potential task, todo and projects
+      backlog (expand-file-name "agenda/backlog.org" org-directory) ;; not properly gtd but I want to keep track of which `milestone' or `target' I've reached
+      agenda (expand-file-name "agenda/agenda.org" org-directory) ;; act as calendar
+      projects (expand-file-name "agenda/projects.org" org-directory)) ;; projects management
+
+(setq org-agenda-files (list inbox someday agenda projects))
+
+(define-key global-map (kbd "C-c c") 'org-capture)
+(define-key global-map (kbd "C-c a") 'org-agenda)
+
+(setq org-capture-templates
+      `(("i" "Inbox" entry  (file ,inbox)
+	 ,(concat "* TODO %?\n"
+		  "/Entered on/ %U"))
+	("m" "meeting" entry  (file ,agenda)
+	 ,(concat "* %? :meeting: \n"
+		  "SCHEDULED <%<%Y-%m-%d %a %H:00>>"))
+	("u" "urgent" entry  (file ,agenda)
+	 ,(concat "* %? :urgent: \n"
+		  "DEADLINE <%<%Y-%m-%d %a %H:00>>"))
+	("o" "osint" entry  (file ,agenda)
+	 ,(concat "* %? :osint: \n"
+		  "<%<%Y-%m-%d %a %H:00>>"))))
+
+(setq org-refile-targets
+      `((,projects :maxlevel . 1)
+	(,agenda :maxlevel . 1)
+	(,someday :maxlevel . 1)
+	(,backlog :maxlevel . 1)))
+
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "WAIT(w)" "ORGANIZE(o)" "NEXT(n)" "|" "DONE(d)" "CANCELLED(c)")))
+
+(setq org-agenda-custom-commands
+      '(("d" "Dashboard"
+         ((agenda "" ((org-deadline-warning-days 7)))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next Tasks")))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Todos to process")))
+          (tags "project" ((org-agenda-overriding-header "Projects")))))
+	("o" "Organize"
+	 ((todo "TODO"
+		((org-agenda-overriding-header "To organize")
+		 (org-agenda-files org-agenda-files)))))
+	("n" "Next Tasks"
+	 ((todo "NEXT"
+		((org-agenda-overriding-header)))))
+	;; ("p" "Projects"
+	;;  ((tags "project"
+	;; 	((org-agenda-overriding-header "All Projects")))))
+	("w" "Workflow Status"
+	 ((todo "TODO"
+		((org-agenda-overriding-header "Todos")
+		 (org-agenda-files org-agenda-files)))
+	  (todo "WAIT"
+		((org-agenda-overriding-header "Waiting on External")
+		 (org-agenda-files org-agenda-files)))
+	  (todo "NEXT"
+		((org-agenda-overriding-header "Next tasks")
+		 (org-agenda-files org-agenda-files)))
+	  (todo "DONE"
+		((org-agenda-overriding-header "Completed")
+		 (org-agenda-todo-list-sublevels nil)
+		 (org-agenda-files org-agenda-files)))
+	  (todo "CANCELLED"
+		((org-agenda-overriding-header "Cancelled")
+		 (org-agenda-files org-agenda-files)))))))
