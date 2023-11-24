@@ -263,9 +263,6 @@
   (interactive)
   (setq org-hide-emphasis-markers (not org-hide-emphasis-markers)))
 
-
-;; (org-roam-db-location (expand-file-name "db/org-roam.db" org-directory))
-
 (setq inbox (expand-file-name "agenda/inbox.org" org-directory)     ;; gtd inbox
       someday (expand-file-name "agenda/someday.org" org-directory) ;; store info about potential task, todo and projects
       backlog (expand-file-name "agenda/backlog.org" org-directory) ;; not properly gtd but I want to keep track of which `milestone' or `target' I've reached
@@ -274,8 +271,20 @@
 
 (setq org-agenda-files (list inbox someday agenda projects))
 
+(defun nto/gtd-jump ()
+  (interactive)
+  (message "jump to gtd home")
+  (dired (expand-file-name "agenda" org-directory)))
+
+(map! :leader
+      (:prefix ("A" . "agenda")
+       :desc "open agenda" "a" #'org-agenda
+       :desc "org capture" "c" #'org-capture
+       :desc "gtd jump" "j" #'nto/gtd-jump))
+
 (define-key global-map (kbd "C-c c") 'org-capture)
 (define-key global-map (kbd "C-c a") 'org-agenda)
+(define-key global-map (kbd "C-c j") 'nto/gtd-jump)
 
 (setq org-capture-templates
       `(("i" "Inbox" entry  (file ,inbox)
