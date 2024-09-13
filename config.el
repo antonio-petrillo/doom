@@ -96,7 +96,18 @@
        :desc "jump to line" "l" #'avy-goto-line
        :desc "jump to line below" "n" #'avy-goto-line-below
        :desc "jump to line above" "p" #'avy-goto-line-above
-       :desc "jump to end line" "e" #'avy-goto-end-of-line))
+       :desc "jump to end line" "e" #'avy-goto-end-of-line)
+      (:prefix ("l". "lang")
+       :desc "translate (it -> en)" "p" #'google-translate-at-point
+       :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
+
+(use-package! google-translate
+  :config
+  (set-popup-rule! "^\\*Google Translate" :slot -1 :size 0.2 :select t)
+  (setq google-translate-translation-directions-alist
+        '(("it" . "en") ("en" . "it")))
+  (setq google-translate-default-source-language "it")
+  (setq google-translate-default-target-language "en"))
 
 (after! evil
   (evil-define-key 'normal 'global
@@ -167,14 +178,14 @@
   (add-hook! 'dired-mode-hook #'denote-dired-mode)
 
   (map! :leader
-        (:prefix ("d" . "denote")
-         :desc "find" "f" #'denote-open-or-create
-         :desc "dired" "d" #'list-denote
-         :desc "rename" "r" #'denote-rename-file
-         :desc "insert" "i" #'denote-link-or-create
-         :desc "link" "l" #'denote-link-or-create
-         :desc "backlink" "b" #'denote-backlink
-         :desc "journal" "j" #'denote-journal-extras-new-entry)))
+        (:prefix ("n" . "notes")
+         :desc "note find" "f" #'denote-open-or-create
+         :desc "note dired" "d" #'list-denote
+         :desc "note rename" "r" #'denote-rename-file
+         :desc "note insert" "i" #'denote-link-or-create
+         :desc "note link" "l" #'denote-link-or-create
+         :desc "note backlink" "b" #'denote-backlink
+         :desc "note journal" "j" #'denote-journal-extras-new-entry)))
 
 (use-package! tab-bar
   :config
