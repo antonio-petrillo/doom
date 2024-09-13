@@ -1,6 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
+(package! tron-theme)
 (package! spacemacs-theme)
 (package! gruber-darker-theme)
 (package! anti-zenburn-theme)
