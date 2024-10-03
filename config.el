@@ -40,32 +40,31 @@
 
 (after! dired
   (use-package! dired-hide-dotfiles
-    :custom (dired-listing-switches "-agho --group-directories-first")
-    :config (evil-collection-define-key 'normal 'dired-mode-map
-              "H" 'dired-hide-dotfiles-mode))
+    :custom (dired-listing-switches "-agho --group-directories-first"))
+
+  (map! :map dired-mode-map
+        "H" #'dired-hide-dotfiles-mode
+        "h" #'dired-up-directory
+        "l" #'dired-find-file
+        "m" #'dired-mark
+        "t" #'dired-toggle-marks
+        "u" #'dired-unmark
+        "C" #'dired-do-copy
+        "D" #'dired-do-delete
+        "J" #'dired-goto-file
+        "M" #'dired-do-chmod
+        "O" #'dired-do-chown
+        "R" #'dired-do-rename
+        "T" #'dired-do-touch
+        "Y" #'dired-copy-filename-as-kill
+        "+" #'dired-create-directory
+        "-" #'dired-up-directory
+        "% l" #'dired-downcase
+        "% u" #'dired-upcase
+        "; d" #'epa-dired-do-decrypt
+        "; e" #'epa-dired-do-encrypt)
 
   (add-hook! 'dired-mode-hook #'dired-hide-dotfiles-mode)
-
-  (evil-define-key 'normal dired-mode-map
-    (kbd "h") 'dired-up-directory
-    (kbd "l") 'dired-find-file
-    (kbd "m") 'dired-mark
-    (kbd "t") 'dired-toggle-marks
-    (kbd "u") 'dired-unmark
-    (kbd "C") 'dired-do-copy
-    (kbd "D") 'dired-do-delete
-    (kbd "J") 'dired-goto-file
-    (kbd "M") 'dired-do-chmod
-    (kbd "O") 'dired-do-chown
-    (kbd "R") 'dired-do-rename
-    (kbd "T") 'dired-do-touch
-    (kbd "Y") 'dired-copy-filename-as-kill
-    (kbd "+") 'dired-create-directory
-    (kbd "-") 'dired-up-directory
-    (kbd "% l") 'dired-downcase
-    (kbd "% u") 'dired-upcase
-    (kbd "; d") 'epa-dired-do-decrypt
-    (kbd "; e") 'epa-dired-do-encrypt)
 
   (setq delete-by-moving-to-trash t))
 
