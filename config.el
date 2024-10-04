@@ -3,8 +3,10 @@
 (setq user-full-name "Antonio Petrillo"
       user-mail-address "antonio.petrill4@studenti.unina.it")
 
-;;(setq doom-font (font-spec :family "FiraMono" :size 12 :weight 'regular)
+;; (setq doom-font (font-spec :family "FiraMono" :size 12 :weight 'regular)
 ;;      doom-variable-pitch-font (font-spec :family "FiraSans" :size 13))
+
+(setq doom-font (font-spec :family "Fira Code" :size 22 :weight 'regular))
 
 (setq doom-theme 'doom-old-hope)
 
