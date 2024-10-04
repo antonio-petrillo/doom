@@ -110,17 +110,6 @@
        :desc "translate (it -> en)" "p" #'google-translate-at-point
        :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
 
-(map!
- :ng
- :desc "multi-edit next" "M-a" #'evil-multiedit-match-symbol-and-next
- :desc "multi-edit next" "M-A" #'evil-multiedit-match-symbol-and-prev)
-
-(map!
- :vg
- :desc "multi-edit match all" "R" #'evil-multiedit-match-all
- :desc "multi-edit match and next" "M-a" #'evil-multiedit-match-and-next
- :desc "multi-edit match and prev" "M-A" #'evil-multiedit-match-and-prev)
-
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 
 (use-package! denote
@@ -215,6 +204,28 @@ of delete the previous word."
   :desc "Consult yank" "M-y" #'consult-yank-pop
   :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word))
 
-(evil-define-key '(insert normal) 'vterm-mode-map
-  (kbd "C-k") #'vterm-send-up
-  (kbd "C-j") #'vterm-send-down)
+(evil-define-key 'normal 'global
+  (kbd "M-a")   #'evil-multiedit-match-symbol-and-next
+  (kbd "M-S-A")   #'evil-multiedit-match-symbol-and-prev)
+
+(evil-define-key 'visual 'global
+  (kbd "M-a")   #'evil-multiedit-match-and-next
+  (kbd "M-S-A")   #'evil-multiedit-match-and-prev)
+
+(evil-define-key '(visual normal) 'global
+  (kbd "C-M-a") #'evil-multiedit-restore)
+
+(with-eval-after-load 'evil-mutliedit
+  (evil-define-key 'multiedit 'global
+    (kbd "M-a")   #'evil-multiedit-match-and-next
+    (kbd "M-S-a") #'evil-multiedit-match-and-prev
+    (kbd "RET")   #'evil-multiedit-toggle-or-restrict-region)
+  (evil-define-key '(multiedit multiedit-insert) 'global
+    (kbd "C-n")   #'evil-multiedit-next
+    (kbd "C-p")   #'evil-multiedit-prev))
+
+(evil-define-key '(insert normal) 'global
+  (kbd "C-d") #'delete-char
+  (kbd "M-d") #'kill-word
+  (kbd "C-n") #'next-line
+  (kbd "C-p") #'previous-line)
