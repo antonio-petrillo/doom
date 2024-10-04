@@ -211,6 +211,10 @@ of delete the previous word."
        :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
 
 (map!
- :g
- :desc "Consult yank" "M-y" #'consult-yank-pop
- :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word)
+ (:g
+  :desc "Consult yank" "M-y" #'consult-yank-pop
+  :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word))
+
+(evil-define-key '(insert normal) 'vterm-mode-map
+  (kbd "C-k") #'vterm-send-up
+  (kbd "C-j") #'vterm-send-down)
