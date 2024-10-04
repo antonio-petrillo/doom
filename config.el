@@ -200,8 +200,10 @@
          :desc "close" "c" #'tab-close
          :desc "rename" "r" #'tab-rename
          :desc "undo" "u" #'tab-undo))
-  (global-set-key (kbd "C-<tab>") #'tab-next)
-  (global-set-key (kbd "S-C-<tab>") #'tab-previous))
+  (map!
+   :gnvi
+   :desc "next-tab" "C-<tab>" #'tab-next
+   :desc "previous-tab" "S-C-<tab>" #'tab-previous))
 
 ;; eglot conf
 (after! eglot
