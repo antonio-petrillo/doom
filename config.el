@@ -82,6 +82,14 @@
 
 (setq doom-leader-alt-key "C-SPC")
 
+(use-package! google-translate
+  :config
+  (set-popup-rule! "^\\*Google Translate" :slot -1 :size 0.2 :select t)
+  (setq google-translate-translation-directions-alist
+        '(("it" . "en") ("en" . "it")))
+  (setq google-translate-default-source-language "it")
+  (setq google-translate-default-target-language "en"))
+
 (map! :leader
       :desc "M-x but faster" :n "SPC" #'execute-extended-command
       (:prefix ("f" . "file")
@@ -102,63 +110,16 @@
        :desc "translate (it -> en)" "p" #'google-translate-at-point
        :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
 
-(use-package! google-translate
-  :config
-  (set-popup-rule! "^\\*Google Translate" :slot -1 :size 0.2 :select t)
-  (setq google-translate-translation-directions-alist
-        '(("it" . "en") ("en" . "it")))
-  (setq google-translate-default-source-language "it")
-  (setq google-translate-default-target-language "en"))
+(map!
+ :ng
+ :desc "multi-edit next" "M-a" #'evil-multiedit-match-symbol-and-next
+ :desc "multi-edit next" "M-A" #'evil-multiedit-match-symbol-and-prev)
 
-(after! evil
-  (evil-define-key 'normal 'global
-    (kbd "M-a")   #'evil-multiedit-match-symbol-and-next
-    (kbd "M-A")   #'evil-multiedit-match-symbol-and-prev)
-  (evil-define-key 'visual 'global
-    "R"           #'evil-multiedit-match-all
-    (kbd "M-a")   #'evil-multiedit-match-and-next
-    (kbd "M-A")   #'evil-multiedit-match-and-prev)
-  (evil-define-key '(visual normal) 'global
-    (kbd "C-M-d") #'evil-multiedit-restore)
-
-  (with-eval-after-load 'evil-mutliedit
-    (evil-define-key 'multiedit 'global
-      (kbd "M-a")   #'evil-multiedit-match-and-next
-      (kbd "M-S-a") #'evil-multiedit-match-and-prev
-      (kbd "RET")   #'evil-multiedit-toggle-or-restrict-region)
-    (evil-define-key '(multiedit multiedit-insert) 'global
-      (kbd "C-n")   #'evil-multiedit-next
-      (kbd "C-p")   #'evil-multiedit-prev))
-
-  ;; evil-mc
-  (evil-define-key '(normal visual) 'global
-    "gzm" #'evil-mc-make-all-cursors
-    "gzu" #'evil-mc-undo-all-cursors
-    "gzz" #'+evil/mc-toggle-cursors
-    "gzc" #'+evil/mc-make-cursor-here
-    "gzn" #'evil-mc-make-and-goto-next-cursor
-    "gzp" #'evil-mc-make-and-goto-prev-cursor
-    "gzN" #'evil-mc-make-and-goto-last-cursor
-    "gzP" #'evil-mc-make-and-goto-first-cursor)
-
-  (with-eval-after-load 'evil-mc
-    (evil-define-key '(normal visual) evil-mc-key-map
-      (kbd "C-n") #'evil-mc-make-and-goto-next-cursor
-      (kbd "C-N") #'evil-mc-make-and-goto-last-cursor
-      (kbd "C-p") #'evil-mc-make-and-goto-prev-cursor
-      (kbd "C-P") #'evil-mc-make-and-goto-first-cursor))
-
-  (evil-define-key '(insert normal) 'vterm-mode-map
-    (kbd "C-k") #'vterm-send-up
-    (kbd "C-j") #'vterm-send-down)
-
-  (evil-define-key '(insert normal) 'global
-    (kbd "C-d") #'delete-char
-    (kbd "M-d") #'kill-word
-    (kbd "C-n") #'next-line
-    (kbd "C-p") #'previous-line))
-
-(global-set-key (kbd "M-y") 'consult-yank-pop)
+(map!
+ :vg
+ :desc "multi-edit match all" "R" #'evil-multiedit-match-all
+ :desc "multi-edit match and next" "M-a" #'evil-multiedit-match-and-next
+ :desc "multi-edit match and prev" "M-A" #'evil-multiedit-match-and-prev)
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 
@@ -206,10 +167,10 @@
    :desc "previous-tab" "S-C-<tab>" #'tab-previous))
 
 ;; eglot conf
-(after! eglot
-  :config
-  (set-eglot-client! 'odin-mode '("~/.local/src/ols/ols"))
-  (set-eglot-client! 'gleam-mode '("gleam lsp")))
+;; (after! eglot
+;;   :config
+;;   (set-eglot-client! 'odin-mode '("~/.local/src/ols/ols"))
+;;   (set-eglot-client! 'gleam-mode '("gleam lsp")))
 
 ;; kill word hack
 (defun nto/backward-kill-word()
@@ -229,4 +190,27 @@ of delete the previous word."
           (same? (backward-kill-word 1))
           (:else (kill-line 0)))))
 
-(global-set-key (kbd "C-<backspace>") 'nto/backward-kill-word)
+(map! :leader
+      :desc "M-x but faster" :n "SPC" #'execute-extended-command
+      (:prefix ("f" . "file")
+       :desc "Grep file" "g" #'consult-ripgrep
+       :desc "Find file" "f" #'consult-find)
+      (:prefix ("w" . "window")
+       :desc "delete others" "1" #'delete-other-windows)
+      (:prefix ("j" . "jump")
+       :desc "jump to char" "j" #'avy-goto-char-timer
+       :desc "consult line" "c" #'consult-line
+       :desc "jump to char 2" "J" #'avy-goto-char-2
+       :desc "jump to word" "w" #'avy-goto-word-0
+       :desc "jump to line" "l" #'avy-goto-line
+       :desc "jump to line below" "n" #'avy-goto-line-below
+       :desc "jump to line above" "p" #'avy-goto-line-above
+       :desc "jump to end line" "e" #'avy-goto-end-of-line)
+      (:prefix ("l". "lang")
+       :desc "translate (it -> en)" "p" #'google-translate-at-point
+       :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
+
+(map!
+ :g
+ :desc "Consult yank" "M-y" #'consult-yank-pop
+ :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word)
