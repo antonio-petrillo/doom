@@ -108,10 +108,10 @@
        data              ; config/data formats
        ;;(dart +flutter)   ; paint ui and not much else
        ;;dhall
-       elixir            ; erlang done right
+       ;; elixir            ; erlang done right
        (elm +lsp +tree-sitter)         ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
-       (erlang +lsp +tree-sitter)            ; an elegant language for a more civilized age
+       ;; (erlang +lsp +tree-sitter)            ; an elegant language for a more civilized age
        ;;ess               ; emacs speaks statistics
        ;;factor
        ;;faust             ; dsp, but you get to keep your soul
@@ -134,7 +134,7 @@
        ;;ledger            ; be audit you can be
        lua               ; one-based indices? one-based indices
        (markdown +grip)          ; writing docs for people to ignore
-       ;;nim               ; python + lisp at the speed of c
+       nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        (ocaml +lsp +tree-sitter)             ; an objective camel
        (org +dragndrop +hugo +pandoc +pomodoro +present +pretty)               ; organize your plain life in plain text
@@ -158,7 +158,7 @@
        ;;terra             ; Earth and Moon in alignment for performance.
        (web +lsp +tree-sitter)               ; the tubes
        (yaml +lsp +tree-sitter)              ; JSON, but readable
-       (zig +lsp +tree-sitter)               ; C, but simpler
+       zig               ; C, but simpler
 
        :email
        ;;(mu4e +org +gmail)

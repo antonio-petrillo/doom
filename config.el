@@ -8,7 +8,7 @@
 
 (setq doom-font (font-spec :family "Fira Code" :size 16 :weight 'regular))
 
-(setq doom-theme 'doom-old-hope)
+(setq doom-theme 'doom-outrun-electric)
 
 (setq display-line-numbers-type 'relative
       org-hide-emphasis-markers nil)
@@ -135,6 +135,7 @@
          :desc "note rename" "r" #'denote-rename-file
          :desc "note insert" "i" #'denote-link-or-create
          :desc "note link" "l" #'denote-link-or-create
+         :desc "note select extension" "t" #'denote-type
          :desc "note backlink" "b" #'denote-backlink
          :desc "note journal" "j" #'denote-journal-extras-new-entry)))
 
@@ -160,6 +161,17 @@
 ;;   :config
 ;;   (set-eglot-client! 'odin-mode '("~/.local/src/ols/ols"))
 ;;   (set-eglot-client! 'gleam-mode '("gleam lsp")))
+
+;; lsp conf
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(odin-mode . "odin"))
+
+  (setq-default lsp-auto-guess-root t)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection (format "%s/Code/Source/ols/ols" (getenv "HOME")))
+                    :activation-fn (lsp-activate-on "odin")
+                    :server-id 'ols
+                    :multi-root t)))
 
 ;; kill word hack
 (defun nto/backward-kill-word()
