@@ -40,6 +40,10 @@
         (:prefix ("w" . "window")
          :desc "ace window" "w" #'ace-window)))
 
+(map! :leader
+      (:prefix ("t" . "toggle")
+       :desc "modeline" "M" #'hide-mode-line-mode))
+
 (after! dired
   (use-package! dired-hide-dotfiles
     :custom (dired-listing-switches "-agho --group-directories-first"))
@@ -156,21 +160,38 @@
    :desc "next-tab" "C-<tab>" #'tab-next
    :desc "previous-tab" "S-C-<tab>" #'tab-previous))
 
-;; eglot conf
-;; (after! eglot
-;;   :config
-;;   (set-eglot-client! 'odin-mode '("~/.local/src/ols/ols"))
-;;   (set-eglot-client! 'gleam-mode '("gleam lsp")))
+;; expand exec-path
+;; odin
+(add-to-list 'exec-path (format "%s/Code/Source/Odin" (getenv "HOME")))
+(add-to-list 'exec-path (format "%s/Code/Source/ols" (getenv "HOME")))
+;; zig
+(add-to-list 'exec-path (format "%s/Code/Source/Zig/zig-0.14" (getenv "HOME")))
+;; gleam
+(add-to-list 'exec-path (format "%s/Code/Source/Gleam" (getenv "HOME")))
+(add-to-list 'exec-path (format "%s/.cache/rebar3/bin" (getenv "HOME")))
+;; nim
+(add-to-list 'exec-path (format "%s/.nimble/bin" (getenv "HOME")))
+;; roc
+(add-to-list 'exec-path (format "%s/Code/Source/roc" (getenv "HOME")))
+;; go
+(add-to-list 'exec-path (format "%s/go/bin" (getenv "HOME")))
 
 ;; lsp conf
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-language-id-configuration '(odin-mode . "odin"))
+  (add-to-list 'lsp-language-id-configuration '(gleam-mode . "gleam"))
 
   (setq-default lsp-auto-guess-root t)
   (lsp-register-client
    (make-lsp-client :new-connection (lsp-stdio-connection (format "%s/Code/Source/ols/ols" (getenv "HOME")))
                     :activation-fn (lsp-activate-on "odin")
                     :server-id 'ols
+                    :multi-root t))
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "gleam lsp")
+                    :activation-fn (lsp-activate-on "gleam")
+                    :server-id 'gleam
                     :multi-root t)))
 
 ;; kill word hack
@@ -241,3 +262,68 @@ of delete the previous word."
   (kbd "M-d") #'kill-word
   (kbd "C-n") #'next-line
   (kbd "C-p") #'previous-line)
+
+;; roc - lang :: see https://gitlab.com/tad-lispy/roc-ts-mode
+(use-package! roc-ts-mode
+  :mode ("\\.roc\\'" . roc-ts-mode)
+  :config
+  (map! :map roc-ts-mode-map
+        (:localleader
+         "f" #'roc-ts-format
+         "b" #'roc-ts-build
+         "t" #'roc-ts-test
+         "r" #'roc-ts-run
+         "d" #'roc-ts-dev
+         "c" #'roc-ts-check
+         "e" #'roc-ts-repl
+         (:prefix ("s" . "roc-start")
+                  "a" #'roc-ts-start-app
+                  "p" #'roc-ts-start-pkg
+                  "u" #'roc-ts-start-update)))
+
+  (set-popup-rule! (rx bol "*roc-ts-repl") :size 0.3)
+
+  ;; Setup the LSP support:
+  ;; For this to work, you'll need roc_language_server, which is distributed in
+  ;; Roc releases, in your PATH.
+  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+    (require 'lsp-mode)
+    (add-to-list 'lsp-language-id-configuration '(roc-ts-mode . "roc"))
+    (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_language_server")
+                                          :activation-fn (lsp-activate-on "roc")
+                                          :major-modes '(roc-ts-mode)
+                                          :server-id 'roc_ls)))
+  (when (modulep! :tools lsp +eglot)
+    (set-eglot-client! 'roc-ts-mode '("roc_language_server")))
+  (add-hook 'roc-ts-mode-local-vars-hook #'lsp!)
+
+  ;; Formatting
+  (set-formatter! 'roc-ts-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-ts-mode))
+  (setq-hook! 'roc-ts-mode-local-vars-hook
+    +format-with 'roc-ts-format)
+
+  ;; Keywords that should trigger electric indentation
+  (set-electric! 'roc-ts-mode :words '("else"))
+
+  ;; Extra ligatures
+  (when (modulep! :ui ligatures +extra)
+    (set-ligatures! 'roc-ts-mode
+      :true "Bool.true" :false "Bool.false"
+      :not "!"
+      :and "&&" :or "||")
+    (setq-hook! 'roc-ts-mode-hook
+      prettify-symbols-compose-predicate #'+roc-ts-symbol-compose-p)
+    (defun +roc-ts-symbol-compose-p (start end match)
+      "Like `prettify-symbols-default-compose-p', except that if the
+match is !, it checks that it's a logical NOT rather than the !
+suffix operator (syntactic sugar for Task.await; see URL
+  `https://www.roc-lang.org/tutorial#the-!-suffix')."
+      (and (prettify-symbols-default-compose-p start end match)
+           (or (not (equal match "!"))
+               (and
+                ;; character before isn't a word character
+                (not (eq (char-syntax (char-before start))
+                         ?w))
+                ;; character after is a word character or open paren
+                (memq (char-syntax (char-after end))
+                      '(?\( ?w))))))))

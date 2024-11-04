@@ -19,3 +19,5 @@
 (package! gleam-mode
   :recipe (:host github
            :repo "gleam-lang/gleam-mode"))
+
+(package! roc-ts-mode)
