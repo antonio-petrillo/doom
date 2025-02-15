@@ -6,6 +6,7 @@
 (package! gruber-darker-theme)
 (package! anti-zenburn-theme)
 (package! ef-themes)
+(package! borland-blue-theme)
 
 (package! dired-hide-dotfiles)
 (package! google-translate)

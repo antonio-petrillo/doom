@@ -1,14 +1,25 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
+(defun nto/display-startup-time ()
+  (message
+   "Emacs loaded in %s with %d garbage collections."
+   (format
+    "%.2f seconds"
+    (float-time
+     (time-subtract after-init-time before-init-time)))
+   gcs-done))
+
+(add-hook 'doom-after-init-hook #'nto/display-startup-time)
+
 (setq user-full-name "Antonio Petrillo"
       user-mail-address "antonio.petrill4@studenti.unina.it")
 
 ;; (setq doom-font (font-spec :family "FiraMono" :size 12 :weight 'regular)
 ;;      doom-variable-pitch-font (font-spec :family "FiraSans" :size 13))
 
-(setq doom-font (font-spec :family "Fira Code" :size 16 :weight 'regular))
+(setq doom-font (font-spec :family "Fira Code" :size 20 :weight 'regular))
 
-(setq doom-theme 'doom-outrun-electric)
+(setq doom-theme 'doom-monokai-classic)
 
 (setq display-line-numbers-type 'relative
       org-hide-emphasis-markers nil)
@@ -44,12 +55,15 @@
       (:prefix ("t" . "toggle")
        :desc "modeline" "M" #'hide-mode-line-mode))
 
-(after! dired
-  (use-package! dired-hide-dotfiles
-    :custom (dired-listing-switches "-agho --group-directories-first"))
+(use-package! dired-hide-dotfiles
+  :custom (dired-listing-switches "-agho --group-directories-first"))
+
+(after! dired-hide-dotfiles
+
+  (add-hook! 'dired-mode-hook #'dired-hide-dotfiles-mode)
 
   (map! :map dired-mode-map
-        "H" #'dired-hide-dotfiles-mode
+        "C-H" #'dired-hide-dotfiles-mode
         "h" #'dired-up-directory
         "l" #'dired-find-file
         "m" #'dired-mark
@@ -70,8 +84,6 @@
         "; d" #'epa-dired-do-decrypt
         "; e" #'epa-dired-do-encrypt)
 
-  (add-hook! 'dired-mode-hook #'dired-hide-dotfiles-mode)
-
   (setq delete-by-moving-to-trash t))
 
 (after! which-key
@@ -84,7 +96,7 @@
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
-(setq doom-leader-alt-key "C-SPC")
+(setq doom-leader-alt-key "M-SPC")
 
 (use-package! google-translate
   :config
@@ -96,11 +108,14 @@
 
 (map! :leader
       :desc "M-x but faster" :n "SPC" #'execute-extended-command
+
       (:prefix ("f" . "file")
        :desc "Grep file" "g" #'consult-ripgrep
        :desc "Find file" "f" #'consult-find)
+
       (:prefix ("w" . "window")
        :desc "delete others" "1" #'delete-other-windows)
+
       (:prefix ("j" . "jump")
        :desc "jump to char" "j" #'avy-goto-char-timer
        :desc "consult line" "c" #'consult-line
@@ -110,6 +125,7 @@
        :desc "jump to line below" "n" #'avy-goto-line-below
        :desc "jump to line above" "p" #'avy-goto-line-above
        :desc "jump to end line" "e" #'avy-goto-end-of-line)
+
       (:prefix ("l". "lang")
        :desc "translate (it -> en)" "p" #'google-translate-at-point
        :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse))
@@ -154,6 +170,16 @@
          :desc "find file" "f" #'find-file-other-tab
          :desc "close" "c" #'tab-close
          :desc "rename" "r" #'tab-rename
+         :desc "undo" "u" #'tab-undo)
+
+        (:prefix ("TAB" . "workspaces")
+         :desc "switch" "TAB" #'tab-switch
+         :desc "new" "n" #'tab-new
+         :desc "buffer" "b" #'switch-to-buffer-other-tab
+         :desc "dired" "d" #'dired-other-tab
+         :desc "find file" "f" #'find-file-other-tab
+         :desc "close" "c" #'tab-close
+         :desc "rename" "r" #'tab-rename
          :desc "undo" "u" #'tab-undo))
   (map!
    :gnvi
@@ -166,6 +192,7 @@
 (add-to-list 'exec-path (format "%s/Code/Source/ols" (getenv "HOME")))
 ;; zig
 (add-to-list 'exec-path (format "%s/Code/Source/Zig/zig-0.14" (getenv "HOME")))
+(add-to-list 'exec-path (format "%s/Code/Source/zls/zig-out/bin" (getenv "HOME")))
 ;; gleam
 (add-to-list 'exec-path (format "%s/Code/Source/Gleam" (getenv "HOME")))
 (add-to-list 'exec-path (format "%s/.cache/rebar3/bin" (getenv "HOME")))
@@ -263,6 +290,8 @@ of delete the previous word."
   (kbd "C-n") #'next-line
   (kbd "C-p") #'previous-line)
 
+(setq! +evil-want-o/O-to-continue-comments nil)
+
 ;; roc - lang :: see https://gitlab.com/tad-lispy/roc-ts-mode
 (use-package! roc-ts-mode
   :mode ("\\.roc\\'" . roc-ts-mode)
@@ -327,3 +356,7 @@ suffix operator (syntactic sugar for Task.await; see URL
                 ;; character after is a word character or open paren
                 (memq (char-syntax (char-after end))
                       '(?\( ?w))))))))
+
+(add-hook 'elfeed-search-mode-hook #'elfeed-update)
+(after! elfeed
+  (setq elfeed-search-filter "@1-month-ago +unread"))
