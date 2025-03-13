@@ -152,23 +152,50 @@ of delete the previous word."
           (:else (kill-line 0)))))
 
 (map!
+ (:g "C-c a" #'org-agenda)
+
+ (:leader :gnvi "n" nil)
+ (:v  "R"     #'evil-multiedit-match-all
+  :n  "M-a"   #'evil-multiedit-match-symbol-and-next
+  :n  "M-A"   #'evil-multiedit-match-symbol-and-prev
+  :v  "M-a"   #'evil-multiedit-match-and-next
+  :v  "M-A"   #'evil-multiedit-match-and-prev
+  :nv "C-M-a" #'evil-multiedit-restore
+
+  :n  "M-d"   nil
+  :n  "M-D"   nil
+  :v  "M-d"   nil
+  :v  "M-D"   nil
+  :nv "C-M-d" nil
+  (:after evil-multiedit
+          (:map evil-multiedit-mode-map
+           :nv "M-a" #'evil-multiedit-match-and-next
+           :nv "M-A" #'evil-multiedit-match-and-prev
+           :nv "M-d" nil
+           :nv "M-D" nil
+           [return]  #'evil-multiedit-toggle-or-restrict-region)))
  (:gni
   :desc "next line" "C-n" #'next-line
   :desc "prev line" "C-p" #'previous-line
   :desc "delete char" "C-d" #'delete-char
   :desc "kill word" "M-d" #'kill-word)
+
  (:g
   :desc "Consult yank" "M-y" #'consult-yank-pop
   :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word)
+
  (:gnvi
   :desc "next-tab" "C-<tab>" #'tab-next
   :desc "previous-tab" "S-C-<tab>" #'tab-previous)
+
  (:leader
   :desc "Exec Cmd" :n "SPC" #'execute-extended-command
   :desc "Exec Cmd for buffer" :n "M-SPC" #'execute-extended-command-for-buffer
+
   (:prefix ("f" . "file")
    :desc "Grep file" "g" #'consult-ripgrep
    :desc "Find file" "f" #'consult-find)
+
   (:prefix ("j" . "jump")
    :desc "jump to char" "j" #'avy-goto-char-timer
    :desc "consult line" "c" #'consult-line
@@ -215,9 +242,6 @@ of delete the previous word."
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 
-;; unbind `<leader> n' prefix
-(map! :leader :gnvi "n" nil)
-
 (use-package! denote
   :hook
   ((text-mode . denote-fontify-links-mode-maybe)
@@ -259,26 +283,6 @@ of delete the previous word."
         (:prefix ("n" . "notes")
          :desc "consult find" "f" #'consult-denote-find
          :desc "consult grep" "g" #'consult-denote-grep)))
-
-(evil-define-key 'normal 'global
-  (kbd "M-a")   #'evil-multiedit-match-symbol-and-next
-  (kbd "M-S-A")   #'evil-multiedit-match-symbol-and-prev)
-
-(evil-define-key 'visual 'global
-  (kbd "M-a")   #'evil-multiedit-match-and-next
-  (kbd "M-S-A")   #'evil-multiedit-match-and-prev)
-
-(evil-define-key '(visual normal) 'global
-  (kbd "C-M-a") #'evil-multiedit-restore)
-
-(with-eval-after-load 'evil-multiedit
-  (evil-define-key 'multiedit 'global
-    (kbd "M-a")   #'evil-multiedit-match-and-next
-    (kbd "M-S-a") #'evil-multiedit-match-and-prev
-    (kbd "RET")   #'evil-multiedit-toggle-or-restrict-region)
-  (evil-define-key '(multiedit multiedit-insert) 'global
-    (kbd "C-n")   #'evil-multiedit-next
-    (kbd "C-p")   #'evil-multiedit-prev))
 
 (setq! +evil-want-o/O-to-continue-comments nil)
 (setq! evil-disable-insert-state-bindings t)
