@@ -11,8 +11,12 @@
 (package! dired-hide-dotfiles)
 (package! google-translate)
 (package! denote)
-(package! consult-denote)
+(package! denote-menu)
+;; (package! consult-denote)
 
 (package! odin-mode
   :recipe (:host sourcehut
            :repo "mgmarlow/odin-mode"))
+
+(package! org-modern)
+(package! org-fragtog)

@@ -242,6 +242,9 @@ of delete the previous word."
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 
+;; HACK: for some reason this variable isn't defined when I load denote
+(defvar denote-file-prompt-use-files-matching-regexp nil)
+
 (use-package! denote
   :hook
   ((text-mode . denote-fontify-links-mode-maybe)
@@ -259,7 +262,9 @@ of delete the previous word."
   (map! :leader
         (:prefix ("n" . "notes")
          :desc "create" "n" #'denote
-         :desc "dired" "d" #'list-denote
+         :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
+         :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
+         :desc "menu" "m" #'denote-menu-list-notes
          :desc "rename" "r" #'denote-rename-file
          :desc "insert" "i" #'denote-link-or-create
          :desc "link" "l" #'denote-link-or-create
@@ -275,14 +280,35 @@ of delete the previous word."
           :desc "reparent" "r" #'denote-sequence-reparent
           :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current))))
 
-(use-package! consult-denote
-  :config
-  (consult-denote-mode 1)
-  :init
-  (map! :leader
-        (:prefix ("n" . "notes")
-         :desc "consult find" "f" #'consult-denote-find
-         :desc "consult grep" "g" #'consult-denote-grep)))
+;; WAIT: just to slow for now
+;; (use-package! consult-denote
+;;   :config
+;;   (consult-denote-mode 1)
+;;   :init
+;;   (map! :leader
+;;         (:prefix ("n" . "notes")
+;;          :desc "consult find" "f" #'consult-denote-find
+;;          :desc "consult grep" "g" #'consult-denote-grep)))
 
 (setq! +evil-want-o/O-to-continue-comments nil)
 (setq! evil-disable-insert-state-bindings t)
+
+(use-package! org-modern
+  :custom
+  (org-modern-table nil)
+  (org-modern-star nil)
+  (org-modern-block-fring nil)
+  :hook
+  ((org-mode . org-modern-mode)
+   (org-agenda-finalize . org-modern-agenda)))
+
+(use-package! org-fragtog
+  :after org
+  :hook
+  (org-mode . org-fragtog-mode)
+  :custom
+  (org-startup-with-latex-preview t)
+  (org-format-latex-options
+   (plist-put org-format-latex-options :scale 4)
+   (plist-put org-format-latex-options :foreground 'auto)
+   (plist-put org-format-latex-options :background 'auto)))

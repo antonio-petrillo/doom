@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: mathbb inline
+# key: imbb
+# --
+$\mathbb{${1:}}$0$
