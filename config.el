@@ -8,10 +8,16 @@
 (setq display-line-numbers-type 'relative)
 (setq org-hide-emphasis-markers t)
 
+(setq doom-font (font-spec :family "Aporetic Serif Mono" :size 36)
+      doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 36)
+      doom-big-font (font-spec :family "Aporetic Serif Mono" :size 52))
+
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
                          ,(expand-file-name "Uni.org" org-directory)))
+
+(add-hook! org-mode-hook (lambda () (interactive) variable-pitch-mode))
 
 (setq org-agenda-custom-commands
       `(
@@ -89,11 +95,8 @@
      (?o delete-other-windows "Delete Other Windows")
      (?? aw-show-dispatch-help "Help"))))
 
-(use-package! dired-hide-dotfiles
-  :custom (dired-listing-switches "-agho --group-directories-first")
-  (add-hook! 'dired-mode-hook #'dired-hide-dotfiles-mode)
+(after! dired
   (map! :map dired-mode-map
-        "C-h" #'dired-hide-dotfiles-mode
         "h" #'dired-up-directory
         "l" #'dired-find-file
         "m" #'dired-mark
@@ -113,6 +116,7 @@
         "% u" #'dired-upcase
         "; d" #'epa-dired-do-decrypt
         "; e" #'epa-dired-do-encrypt)
+
   (setq delete-by-moving-to-trash t))
 
 (after! which-key
@@ -290,8 +294,9 @@ of delete the previous word."
 ;;          :desc "consult find" "f" #'consult-denote-find
 ;;          :desc "consult grep" "g" #'consult-denote-grep)))
 
-(setq! +evil-want-o/O-to-continue-comments nil)
-(setq! evil-disable-insert-state-bindings t)
+(setq! +evil-want-o/O-to-continue-comments nil
+       evil-disable-insert-state-bindings t
+       evil-kill-on-visual-paste nil)
 
 (use-package! org-modern
   :custom
@@ -312,3 +317,19 @@ of delete the previous word."
    (plist-put org-format-latex-options :scale 4)
    (plist-put org-format-latex-options :foreground 'auto)
    (plist-put org-format-latex-options :background 'auto)))
+
+(defun nto/aas-make-snippet (snip &optional offset)
+  (lambda ()
+    (interactive)
+    (insert snip)
+    (when offset
+      (backward-char offset))))
+
+(use-package! aas
+  :hook
+  ((org-mode . aas-activate-for-major-mode)
+   (org-mode . aas-activate-for-major-mode))
+  :config
+  (aas-set-snippets 'org-mode
+    "mbb" (nto/aas-make-snippet "\\mathbb{}" 1)
+    ))

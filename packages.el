@@ -6,10 +6,9 @@
 (package! gruber-darker-theme)
 (package! anti-zenburn-theme)
 (package! ef-themes)
-(package! borland-blue-theme)
 
-(package! dired-hide-dotfiles)
 (package! google-translate)
+
 (package! denote)
 (package! denote-menu)
 ;; (package! consult-denote)
@@ -20,3 +19,4 @@
 
 (package! org-modern)
 (package! org-fragtog)
+(package! aas)
