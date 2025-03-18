@@ -5,6 +5,8 @@
 
 (setq doom-theme 'doom-one)
 
+(setq default-input-method "italian-postfix")
+
 (setq display-line-numbers-type 'relative)
 (setq org-hide-emphasis-markers t)
 
@@ -318,7 +320,7 @@ of delete the previous word."
    (plist-put org-format-latex-options :foreground 'auto)
    (plist-put org-format-latex-options :background 'auto)))
 
-(defun nto/aas-make-snippet (snip &optional offset)
+(defun nto/aas-interactive-snippet (snip offset)
   (lambda ()
     (interactive)
     (insert snip)
@@ -330,6 +332,37 @@ of delete the previous word."
   ((org-mode . aas-activate-for-major-mode)
    (org-mode . aas-activate-for-major-mode))
   :config
+  (aas-set-snippets 'markdown-mode
+    ";b" (nto/aas-interactive-snippet "****" 2)
+    ";i" (nto/aas-interactive-snippet "**" 1))
   (aas-set-snippets 'org-mode
-    "mbb" (nto/aas-make-snippet "\\mathbb{}" 1)
-    ))
+    "mbb" (nto/aas-interactive-snippet "\\mathbb{}" 1)
+    ";ra" "\\rightarrow "
+    ";la" "\\leftarrow "
+    "__" (nto/aas-interactive-snippet "_{}" 1)
+    "^^" (nto/aas-interactive-snippet "^{}" 1)
+    "_sum" (nto/aas-interactive-snippet "\\sum_{}" 1)
+    "^sum" (nto/aas-interactive-snippet "\\sum_{}^{}" 4)
+    "_int" (nto/aas-interactive-snippet "\\int_{}" 1)
+    "^int" (nto/aas-interactive-snippet "\\int_{}^{}" 4)
+    ";b" (nto/aas-interactive-snippet "**" 1)
+    ";i" (nto/aas-interactive-snippet "//" 1)
+    ";|" "\\lor"
+    ";&" "\\land"
+    ";a" "\\alpha"
+    ";;b" "\\beta"
+    ";c" "\\gamma"
+    ";d" "\\delta"
+    ";m" "\\mu"
+    ";n" "\\nu"
+    ";f" "\\phi"
+    ";;f" "\\varphi"
+    ";g" "\\nabla"
+    ";s" "\\sigma"
+    ";S" "\\Sigma"
+    ";x" "\\times"
+    ";." "\\cdot"
+    ";;." "\\cdots"
+    "On" "O(n)"
+    "Oa" "O(1)"
+    "log" (nto/aas-interactive-snippet "\\log()" 1)))
