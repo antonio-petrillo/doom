@@ -97,6 +97,10 @@
      (?o delete-other-windows "Delete Other Windows")
      (?? aw-show-dispatch-help "Help"))))
 
+(map! :map yas-keymap
+      "C-n" #'yas-next-field-or-maybe-expand
+      "C-p" #'yas-prev-field)
+
 (after! dired
   (map! :map dired-mode-map
         "h" #'dired-up-directory
@@ -161,6 +165,7 @@ of delete the previous word."
  (:g "C-c a" #'org-agenda)
 
  (:leader :gnvi "n" nil)
+
  (:v  "R"     #'evil-multiedit-match-all
   :n  "M-a"   #'evil-multiedit-match-symbol-and-next
   :n  "M-A"   #'evil-multiedit-match-symbol-and-prev
@@ -262,11 +267,11 @@ of delete the previous word."
   (setq denote-prompts '(title keywords))
   (setq denote-file-type 'org)
   (setq denote-known-keywords '("emacs" "programming" "algorithm"
-                                "datastructure" "cryptography" "logbook"
+                                "datastructure" "c ryptography" "logbook"
                                 "film" "book" "meta" "exams"))
   :init
   (map! :leader
-        (:prefix ("n" . "notes")
+        (:prefix ("n" . "denote")
          :desc "create" "n" #'denote
          :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
          :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
