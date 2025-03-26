@@ -341,6 +341,10 @@ of delete the previous word."
   (aas-set-snippets 'markdown-mode
                     ";b" (nto/aas-interactive-snippet "****" 2)
                     ";/" (nto/aas-interactive-snippet "**" 1))
+  (aas-set-snippets 'go-mode
+                    "fn" "func ")
+  (aas-set-snippets 'clojure-mode
+                    "fn" (nto/aas-interactive-snippet "(defn )" 1) )
   (aas-set-snippets 'org-mode
                     "mbb" (nto/aas-interactive-snippet "\\mathbb{}" 1)
                     ";ra" "\\rightarrow "
