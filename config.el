@@ -161,6 +161,9 @@ of delete the previous word."
           (same? (backward-kill-word 1))
           (:else (kill-line 0)))))
 
+(set-rotate-patterns! 'zig-mode
+  :symbols '(("var" "const")))
+
 (map!
  (:g "C-c a" #'org-agenda)
 
@@ -251,8 +254,6 @@ of delete the previous word."
    :desc "rename" "r" #'tab-rename
    :desc "undo" "u" #'tab-undo)))
 
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-
 ;; HACK: for some reason this variable isn't defined when I load denote
 (defvar denote-file-prompt-use-files-matching-regexp nil)
 
@@ -267,7 +268,7 @@ of delete the previous word."
   (setq denote-prompts '(title keywords))
   (setq denote-file-type 'org)
   (setq denote-known-keywords '("emacs" "programming" "algorithm"
-                                "datastructure" "c ryptography" "logbook"
+                                "datastructure" "cryptography" "logbook"
                                 "film" "book" "meta" "exams"))
   :init
   (map! :leader
@@ -338,36 +339,40 @@ of delete the previous word."
    (org-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-    ";b" (nto/aas-interactive-snippet "****" 2)
-    ";i" (nto/aas-interactive-snippet "**" 1))
+                    ";b" (nto/aas-interactive-snippet "****" 2)
+                    ";/" (nto/aas-interactive-snippet "**" 1))
   (aas-set-snippets 'org-mode
-    "mbb" (nto/aas-interactive-snippet "\\mathbb{}" 1)
-    ";ra" "\\rightarrow "
-    ";la" "\\leftarrow "
-    "__" (nto/aas-interactive-snippet "_{}" 1)
-    "^^" (nto/aas-interactive-snippet "^{}" 1)
-    "_sum" (nto/aas-interactive-snippet "\\sum_{}" 1)
-    "^sum" (nto/aas-interactive-snippet "\\sum_{}^{}" 4)
-    "_int" (nto/aas-interactive-snippet "\\int_{}" 1)
-    "^int" (nto/aas-interactive-snippet "\\int_{}^{}" 4)
-    ";b" (nto/aas-interactive-snippet "**" 1)
-    ";i" (nto/aas-interactive-snippet "//" 1)
-    ";|" "\\lor"
-    ";&" "\\land"
-    ";a" "\\alpha"
-    ";;b" "\\beta"
-    ";c" "\\gamma"
-    ";d" "\\delta"
-    ";m" "\\mu"
-    ";n" "\\nu"
-    ";f" "\\phi"
-    ";;f" "\\varphi"
-    ";g" "\\nabla"
-    ";s" "\\sigma"
-    ";S" "\\Sigma"
-    ";x" "\\times"
-    ";." "\\cdot"
-    ";;." "\\cdots"
-    "On" "O(n)"
-    "Oa" "O(1)"
-    "log" (nto/aas-interactive-snippet "\\log()" 1)))
+                    "mbb" (nto/aas-interactive-snippet "\\mathbb{}" 1)
+                    ";ra" "\\rightarrow "
+                    ";la" "\\leftarrow "
+                    "__" (nto/aas-interactive-snippet "_{}" 1)
+                    "^^" (nto/aas-interactive-snippet "^{}" 1)
+                    "_sum" (nto/aas-interactive-snippet "\\sum_{}" 1)
+                    "^sum" (nto/aas-interactive-snippet "\\sum_{}^{}" 4)
+                    "_int" (nto/aas-interactive-snippet "\\int_{}" 1)
+                    "^int" (nto/aas-interactive-snippet "\\int_{}^{}" 4)
+                    ";b" (nto/aas-interactive-snippet "**" 1)
+                    ";i" (nto/aas-interactive-snippet "//" 1)
+                    ";A" "\\forall"
+                    ";E" "\\exists"
+                    ";|" "\\lor"
+                    ";&" "\\land"
+                    ";a" "\\alpha"
+                    ";;b" "\\beta"
+                    ";c" "\\gamma"
+                    ";d" "\\delta"
+                    ";m" "\\mu"
+                    ";n" "\\nu"
+                    ";f" "\\phi"
+                    ";;f" "\\varphi"
+                    ";g" "\\nabla"
+                    ";s" "\\sigma"
+                    ";S" "\\Sigma"
+                    ";x" "\\times"
+                    ";." "\\cdot"
+                    ";;." "\\cdots"
+                    "On" "O(n)"
+                    "Oa" "O(1)"
+                    ";1" (nto/aas-interactive-snippet "\\log()" 1)
+                    ";2" (nto/aas-interactive-snippet "\\log_2()" 1)
+                    ";e" (nto/aas-interactive-snippet "\\ln()" 1)))
