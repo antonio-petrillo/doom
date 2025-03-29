@@ -102,7 +102,11 @@
       "C-p" #'yas-prev-field)
 
 (after! dired
+  (use-package! dired-hide-dotfiles)
+  (add-hook! 'dired-mode-hook  #'dired-hide-dotfiles-mode)
+
   (map! :map dired-mode-map
+        "C-h" 'dired-hide-dotfiles-mode
         "h" #'dired-up-directory
         "l" #'dired-find-file
         "m" #'dired-mark
@@ -356,7 +360,7 @@ of delete the previous word."
                     "_int" (nto/aas-interactive-snippet "\\int_{}" 1)
                     "^int" (nto/aas-interactive-snippet "\\int_{}^{}" 4)
                     ";b" (nto/aas-interactive-snippet "**" 1)
-                    ";i" (nto/aas-interactive-snippet "//" 1)
+                    ";/" (nto/aas-interactive-snippet "//" 1)
                     ";A" "\\forall"
                     ";E" "\\exists"
                     ";|" "\\lor"

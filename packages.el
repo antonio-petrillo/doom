@@ -10,6 +10,7 @@
 (package! odin-mode
   :recipe (:host sourcehut
            :repo "mgmarlow/odin-mode"))
+(package! dired-hide-dotfiles)
 (package! org-modern)
 (package! org-fragtog)
 (package! aas)

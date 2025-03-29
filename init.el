@@ -116,7 +116,7 @@
        ;;beancount         ; mind the GAAP
        (cc +lsp)         ; C > C++ == 1
        (clojure +lsp +tree-sitter)           ; java with a lisp
-       ;;common-lisp       ; if you've seen one lisp, you've seen them all
+       common-lisp       ; if you've seen one lisp, you've seen them all
        coq                 ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
        ;;csharp            ; unity, .NET, and mono shenanigans
@@ -151,7 +151,7 @@
        (markdown +grip)          ; writing docs for people to ignore
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
-       ocaml               ; an objective camel
+       ;;ocaml             ; an objective camel
        (org +dragndrop +hugo +noter +pomodoro +pandoc) ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
