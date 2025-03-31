@@ -383,8 +383,8 @@ of delete the previous word."
     ";;4" (nto/aas-interactive-snippet "$$$$ " 3)
     ";$" (nto/aas-interactive-snippet "$$ " 2)
     ";4" (nto/aas-interactive-snippet "$$ " 2)
-    "On" "O(n)"
-    "Oa" "O(1)"
+    ";On" "O(n)"
+    ";Oa" "O(1)"
     ";1" (nto/aas-interactive-snippet "\\log()" 1)
     ";2" (nto/aas-interactive-snippet "\\log_2()" 1)
     ";e" (nto/aas-interactive-snippet "\\ln()" 1)))
