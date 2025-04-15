@@ -16,4 +16,6 @@
 (package! aas)
 (package! denote)
 (package! denote-menu)
+(package! denote-explore)
 ;; (package! consult-denote)
+(package! trashed)

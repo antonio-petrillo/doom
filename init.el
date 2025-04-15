@@ -95,7 +95,7 @@
        editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
-       (lookup +offline +dictionary)              ; navigate your code and its documentation
+       (lookup +docsets +offline +dictionary)              ; navigate your code and its documentation
        (lsp +eglot)               ; M-x vscode
        (magit +forge)             ; a git porcelain for Emacs
        make              ; run make tasks from Emacs
@@ -120,7 +120,7 @@
        ;;coq                 ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
        ;;csharp            ; unity, .NET, and mono shenanigans
-       ;;data              ; config/data formats
+       data              ; config/data formats
        ;; (dart +flutter)   ; paint ui and not much else
        ;;dhall
        ;;elixir            ; erlang done right
@@ -152,7 +152,12 @@
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
-       (org +dragndrop +hugo +noter +pomodoro +pandoc) ; organize your plain life in plain text
+       (org +dragndrop
+            +hugo
+            +noter
+            +pomodoro
+            +pandoc
+            +present) ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;graphviz          ; diagrams for confusing yourself even more

@@ -22,8 +22,7 @@
 (add-hook! org-mode-hook (lambda () (interactive) variable-pitch-mode))
 
 (setq org-agenda-custom-commands
-      `(
-        ("d" "Daily Agenda"
+      `(("d" "Daily Agenda"
          ((agenda ""
                   ((org-agenda-span 'day)
                    (org-deadline-warning-days 7)
@@ -96,10 +95,6 @@
      (?b aw-split-window-horz "Split Horz Window")
      (?o delete-other-windows "Delete Other Windows")
      (?? aw-show-dispatch-help "Help"))))
-
-;; (map! :map yas-keymap
-;;       "C-n" #'yas-next-field-or-maybe-expand
-;;       "C-p" #'yas-prev-field)
 
 (after! dired
   (use-package! dired-hide-dotfiles)
@@ -330,61 +325,69 @@ of delete the previous word."
    (plist-put org-format-latex-options :foreground 'auto)
    (plist-put org-format-latex-options :background 'auto)))
 
-(defun nto/aas-interactive-snippet (snip offset)
-  (lambda ()
-    (interactive)
-    (insert snip)
-    (when offset
-      (backward-char offset))))
+(defmacro nto/aas-expand-and-move (snip offset)
+  `(lambda () (interactive)
+     (insert ,snip)
+     (backward-char ,offset)))
 
 (use-package! aas
   :hook
   ((org-mode . aas-activate-for-major-mode)
-   (org-mode . aas-activate-for-major-mode))
+   (markdown-mode . aas-activate-for-major-mode)
+   (latex-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-    ";b" (nto/aas-interactive-snippet "**** " 3)
-    ";/" (nto/aas-interactive-snippet "** " 2))
-  (aas-set-snippets 'go-mode
-    "fn" "func ")
-  (aas-set-snippets 'clojure-mode
-    "fn" (nto/aas-interactive-snippet "(defn )" 1) )
+                    ";b" (nto/aas-expand-and-move "**** " 3)
+                    ";/" (nto/aas-expand-and-move "** " 2))
   (aas-set-snippets 'org-mode
-    "mbb" (nto/aas-interactive-snippet "\\mathbb{}" 1)
-    ";ra" "\\rightarrow "
-    ";la" "\\leftarrow "
-    "__" (nto/aas-interactive-snippet "_{}" 1)
-    "^^" (nto/aas-interactive-snippet "^{}" 1)
-    "_sum" (nto/aas-interactive-snippet "\\sum_{}" 1)
-    "^sum" (nto/aas-interactive-snippet "\\sum_{}^{}" 4)
-    "_int" (nto/aas-interactive-snippet "\\int_{}" 1)
-    "^int" (nto/aas-interactive-snippet "\\int_{}^{}" 4)
-    ";b" (nto/aas-interactive-snippet "** " 2)
-    ";/" (nto/aas-interactive-snippet "// " 2)
-    ";A" "\\forall"
-    ";E" "\\exists"
-    ";|" "\\lor"
-    ";&" "\\land"
-    ";a" "\\alpha"
-    ";;b" "\\beta"
-    ";c" "\\gamma"
-    ";d" "\\delta"
-    ";m" "\\mu"
-    ";n" "\\nu"
-    ";f" "\\phi"
-    ";;f" "\\varphi"
-    ";g" "\\nabla"
-    ";s" "\\sigma"
-    ";S" "\\Sigma"
-    ";x" "\\times"
-    ";." "\\cdot"
-    ";;." "\\cdots"
-    ";;$" (nto/aas-interactive-snippet "$$$$ " 3)
-    ";;4" (nto/aas-interactive-snippet "$$$$ " 3)
-    ";$" (nto/aas-interactive-snippet "$$ " 2)
-    ";4" (nto/aas-interactive-snippet "$$ " 2)
-    ";On" "O(n)"
-    ";Oa" "O(1)"
-    ";1" (nto/aas-interactive-snippet "\\log()" 1)
-    ";2" (nto/aas-interactive-snippet "\\log_2()" 1)
-    ";e" (nto/aas-interactive-snippet "\\ln()" 1)))
+                    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
+                    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
+                    ";ra" "\\rightarrow "
+                    ";la" "\\leftarrow "
+                    "__" (nto/aas-expand-and-move "_{}" 1)
+                    "^^" (nto/aas-expand-and-move "^{}" 1)
+                    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
+                    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
+                    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
+                    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
+                    ";b" (nto/aas-expand-and-move "** " 2)
+                    ";/" (nto/aas-expand-and-move "// " 2)
+                    ";A" "\\forall"
+                    ";E" "\\exists"
+                    ";|" "\\lor"
+                    ";&" "\\land"
+                    ";a" "\\alpha"
+                    ";;b" "\\beta"
+                    ";c" "\\gamma"
+                    ";d" "\\delta"
+                    ";e" "\\eta"
+                    ";E" "\\Eta"
+                    ";m" "\\mu"
+                    ";n" "\\nu"
+                    ";f" "\\phi"
+                    ";;f" "\\varphi"
+                    ";g" "\\nabla"
+                    ";s" "\\sigma"
+                    ";S" "\\Sigma"
+                    ";x" "\\times"
+                    ";." "\\cdot"
+                    ";;." "\\cdots"
+                    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
+                    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
+                    ";$" (nto/aas-expand-and-move "$$ " 2)
+                    ";4" (nto/aas-expand-and-move "$$ " 2)
+                    ";On" "O(n)"
+                    ";Oa" "O(1)"))
+
+(use-package! trashed
+  :commands (trashed)
+  :config
+  (setq trashed-action-confirmer 'y-or-n-p)
+  (setq trashed-use-header-line t)
+  (setq trashed-sort-key '("Date deleted" . t))
+  (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
+
+;; TODO: explore `tab-bar-format' variable:
+;; try to add to the tab bar
+;; - clock time
+;; - battery display
