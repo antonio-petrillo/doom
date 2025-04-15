@@ -19,7 +19,7 @@
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
                          ,(expand-file-name "Uni.org" org-directory)))
 
-(add-hook! org-mode-hook (lambda () (interactive) variable-pitch-mode))
+(add-hook 'org-mode-hook 'variable-pitch-mode)
 
 (setq org-agenda-custom-commands
       `(("d" "Daily Agenda"
@@ -77,24 +77,24 @@
                  (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'done))))))))
 
 (use-package! ace-window
-  :custom
-  (aw-scope 'frame)
-  (aw-dispatch-always nil)
-  (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (aw-dispatch-alist
-   '((?x aw-delete-window "Delete Windows")
-     (?m aw-swap-window "Swap Windows")
-     (?M aw-move-window "Move Windows")
-     (?c aw-move-window "Move Windows")
-     (?j aw-switch-buffer-in-window "Select Buffer")
-     (?f aw-flip-window "Previous window")
-     (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
-     (?e aw-execute-command-other-window "Execute Command Other Window")
-     (?S aw-split-window-fair "Split Fair Window")
-     (?v aw-split-window-vert "Split Vert Window")
-     (?b aw-split-window-horz "Split Horz Window")
-     (?o delete-other-windows "Delete Other Windows")
-     (?? aw-show-dispatch-help "Help"))))
+  :config
+  (setopt aw-scope 'frame)
+  (setopt aw-dispatch-always nil)
+  (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (setopt aw-dispatch-alist
+          '((?x aw-delete-window "Delete Windows")
+            (?m aw-swap-window "Swap Windows")
+            (?M aw-move-window "Move Windows")
+            (?c aw-move-window "Move Windows")
+            (?j aw-switch-buffer-in-window "Select Buffer")
+            (?f aw-flip-window "Previous window")
+            (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
+            (?e aw-execute-command-other-window "Execute Command Other Window")
+            (?S aw-split-window-fair "Split Fair Window")
+            (?v aw-split-window-vert "Split Vert Window")
+            (?b aw-split-window-horz "Split Horz Window")
+            (?o delete-other-windows "Delete Other Windows")
+            (?? aw-show-dispatch-help "Help"))))
 
 (after! dired
   (use-package! dired-hide-dotfiles)
@@ -198,8 +198,8 @@ of delete the previous word."
   :desc "Delete backward" "C-<backspace>" #'nto/backward-kill-word)
 
  (:gnvi
-  :desc "next-tab" "C-<tab>" #'tab-next
-  :desc "previous-tab" "S-C-<tab>" #'tab-previous)
+  :desc "next tab" "C-<tab>" #'tab-next
+  :desc "previous tab" "S-C-<tab>" #'tab-previous)
 
  (:leader
   :desc "Exec Cmd" :n "SPC" #'execute-extended-command
@@ -306,24 +306,23 @@ of delete the previous word."
        evil-kill-on-visual-paste nil)
 
 (use-package! org-modern
-  :custom
-  (org-modern-table nil)
-  (org-modern-star nil)
-  (org-modern-block-fring nil)
   :hook
   ((org-mode . org-modern-mode)
-   (org-agenda-finalize . org-modern-agenda)))
+   (org-agenda-finalize . org-modern-agenda))
+  :config
+  (setopt org-modern-table nil
+          org-modern-star nil
+          org-modern-block-fringe nil))
 
 (use-package! org-fragtog
   :after org
   :hook
   (org-mode . org-fragtog-mode)
-  :custom
-  (org-startup-with-latex-preview t)
-  (org-format-latex-options
-   (plist-put org-format-latex-options :scale 4)
-   (plist-put org-format-latex-options :foreground 'auto)
-   (plist-put org-format-latex-options :background 'auto)))
+  :config
+  (setopt org-startup-with-latex-preview t)
+  (plist-put org-format-latex-options :scale 4)
+  (plist-put org-format-latex-options :foreground 'auto)
+  (plist-put org-format-latex-options :background 'auto))
 
 (defmacro nto/aas-expand-and-move (snip offset)
   `(lambda () (interactive)
@@ -337,47 +336,47 @@ of delete the previous word."
    (latex-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-                    ";b" (nto/aas-expand-and-move "**** " 3)
-                    ";/" (nto/aas-expand-and-move "** " 2))
+    ";b" (nto/aas-expand-and-move "**** " 3)
+    ";/" (nto/aas-expand-and-move "** " 2))
   (aas-set-snippets 'org-mode
-                    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
-                    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
-                    ";ra" "\\rightarrow "
-                    ";la" "\\leftarrow "
-                    "__" (nto/aas-expand-and-move "_{}" 1)
-                    "^^" (nto/aas-expand-and-move "^{}" 1)
-                    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
-                    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
-                    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
-                    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
-                    ";b" (nto/aas-expand-and-move "** " 2)
-                    ";/" (nto/aas-expand-and-move "// " 2)
-                    ";A" "\\forall"
-                    ";E" "\\exists"
-                    ";|" "\\lor"
-                    ";&" "\\land"
-                    ";a" "\\alpha"
-                    ";;b" "\\beta"
-                    ";c" "\\gamma"
-                    ";d" "\\delta"
-                    ";e" "\\eta"
-                    ";E" "\\Eta"
-                    ";m" "\\mu"
-                    ";n" "\\nu"
-                    ";f" "\\phi"
-                    ";;f" "\\varphi"
-                    ";g" "\\nabla"
-                    ";s" "\\sigma"
-                    ";S" "\\Sigma"
-                    ";x" "\\times"
-                    ";." "\\cdot"
-                    ";;." "\\cdots"
-                    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
-                    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
-                    ";$" (nto/aas-expand-and-move "$$ " 2)
-                    ";4" (nto/aas-expand-and-move "$$ " 2)
-                    ";On" "O(n)"
-                    ";Oa" "O(1)"))
+    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
+    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
+    ";ra" "\\rightarrow "
+    ";la" "\\leftarrow "
+    "__" (nto/aas-expand-and-move "_{}" 1)
+    "^^" (nto/aas-expand-and-move "^{}" 1)
+    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
+    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
+    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
+    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
+    ";b" (nto/aas-expand-and-move "** " 2)
+    ";/" (nto/aas-expand-and-move "// " 2)
+    ";A" "\\forall"
+    ";E" "\\exists"
+    ";|" "\\lor"
+    ";&" "\\land"
+    ";a" "\\alpha"
+    ";;b" "\\beta"
+    ";c" "\\gamma"
+    ";d" "\\delta"
+    ";e" "\\eta"
+    ";E" "\\Eta"
+    ";m" "\\mu"
+    ";n" "\\nu"
+    ";f" "\\phi"
+    ";;f" "\\varphi"
+    ";g" "\\nabla"
+    ";s" "\\sigma"
+    ";S" "\\Sigma"
+    ";x" "\\times"
+    ";." "\\cdot"
+    ";;." "\\cdots"
+    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
+    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
+    ";$" (nto/aas-expand-and-move "$$ " 2)
+    ";4" (nto/aas-expand-and-move "$$ " 2)
+    ";On" "O(n)"
+    ";Oa" "O(1)"))
 
 (use-package! trashed
   :commands (trashed)

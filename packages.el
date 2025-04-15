@@ -17,5 +17,7 @@
 (package! denote)
 (package! denote-menu)
 (package! denote-explore)
-;; (package! consult-denote)
+(package! consult-denote)
 (package! trashed)
+
+(package! auto-yasnippet :disable t)
