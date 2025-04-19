@@ -10,9 +10,9 @@
 (setq display-line-numbers-type 'relative)
 (setq org-hide-emphasis-markers t)
 
-(setq doom-font (font-spec :family "Aporetic Serif Mono" :size 36)
-      doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 36)
-      doom-big-font (font-spec :family "Aporetic Serif Mono" :size 52))
+(setq doom-font (font-spec :family "Aporetic Serif Mono" :size 20)
+      doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
+      doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
@@ -336,47 +336,47 @@ of delete the previous word."
    (latex-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-    ";b" (nto/aas-expand-and-move "**** " 3)
-    ";/" (nto/aas-expand-and-move "** " 2))
+                    ";b" (nto/aas-expand-and-move "**** " 3)
+                    ";/" (nto/aas-expand-and-move "** " 2))
   (aas-set-snippets 'org-mode
-    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
-    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
-    ";ra" "\\rightarrow "
-    ";la" "\\leftarrow "
-    "__" (nto/aas-expand-and-move "_{}" 1)
-    "^^" (nto/aas-expand-and-move "^{}" 1)
-    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
-    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
-    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
-    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
-    ";b" (nto/aas-expand-and-move "** " 2)
-    ";/" (nto/aas-expand-and-move "// " 2)
-    ";A" "\\forall"
-    ";E" "\\exists"
-    ";|" "\\lor"
-    ";&" "\\land"
-    ";a" "\\alpha"
-    ";;b" "\\beta"
-    ";c" "\\gamma"
-    ";d" "\\delta"
-    ";e" "\\eta"
-    ";E" "\\Eta"
-    ";m" "\\mu"
-    ";n" "\\nu"
-    ";f" "\\phi"
-    ";;f" "\\varphi"
-    ";g" "\\nabla"
-    ";s" "\\sigma"
-    ";S" "\\Sigma"
-    ";x" "\\times"
-    ";." "\\cdot"
-    ";;." "\\cdots"
-    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
-    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
-    ";$" (nto/aas-expand-and-move "$$ " 2)
-    ";4" (nto/aas-expand-and-move "$$ " 2)
-    ";On" "O(n)"
-    ";Oa" "O(1)"))
+                    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
+                    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
+                    ";ra" "\\rightarrow "
+                    ";la" "\\leftarrow "
+                    "__" (nto/aas-expand-and-move "_{}" 1)
+                    "^^" (nto/aas-expand-and-move "^{}" 1)
+                    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
+                    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
+                    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
+                    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
+                    ";b" (nto/aas-expand-and-move "** " 2)
+                    ";/" (nto/aas-expand-and-move "// " 2)
+                    ";A" "\\forall"
+                    ";E" "\\exists"
+                    ";|" "\\lor"
+                    ";&" "\\land"
+                    ";a" "\\alpha"
+                    ";;b" "\\beta"
+                    ";c" "\\gamma"
+                    ";d" "\\delta"
+                    ";e" "\\eta"
+                    ";E" "\\Eta"
+                    ";m" "\\mu"
+                    ";n" "\\nu"
+                    ";f" "\\phi"
+                    ";;f" "\\varphi"
+                    ";g" "\\nabla"
+                    ";s" "\\sigma"
+                    ";S" "\\Sigma"
+                    ";x" "\\times"
+                    ";." "\\cdot"
+                    ";;." "\\cdots"
+                    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
+                    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
+                    ";$" (nto/aas-expand-and-move "$$ " 2)
+                    ";4" (nto/aas-expand-and-move "$$ " 2)
+                    ";On" "O(n)"
+                    ";Oa" "O(1)"))
 
 (use-package! trashed
   :commands (trashed)

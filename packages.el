@@ -1,6 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
+(package! ace-window)
 (package! tron-legacy-theme)
 (package! spacemacs-theme)
 (package! gruber-darker-theme)
