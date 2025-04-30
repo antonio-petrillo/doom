@@ -14,67 +14,63 @@
       doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
       doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
+(setq-default evil-escape-key-sequence "jk")
+
 (setq org-directory "~/Documents/Org/")
+
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
+
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
-                         ,(expand-file-name "Uni.org" org-directory)))
+                         ))
 
 (add-hook 'org-mode-hook 'variable-pitch-mode)
+(after! org
+  (setq org-agenda-custom-commands
+        `(("u" "Uni"
+           (
+            (todo "EXAM"
+                  ((org-agenda-overriding-header "Exams Todo: ")))
+            (todo "CURRENT"
+                  ((org-agenda-overriding-header "Current Courses: ")))
+            (todo "QUEUED"
+                  ((org-agenda-overriding-header "Next Courses: ")))
+            (todo "PASSED"
+                  ((org-agenda-overriding-header "Passed: "))))
+           ((org-agenda-files '(,(expand-file-name "Uni.org" org-directory)))))))
 
-(setq org-agenda-custom-commands
-      `(("d" "Daily Agenda"
-         ((agenda ""
-                  ((org-agenda-span 'day)
-                   (org-deadline-warning-days 7)
-                   (org-agenda-format-date "%A %-e %B %Y")
-                   (org-agenda-overriding-header "Today 📆")))
-          (todo "WAIT"
-                ((org-agenda-overriding-header "Waiting tasks 🕙")))))
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"  ; A task that needs doing & is ready to do
+           "WAIT(w)"  ; Something external is holding up this task
+           "|"
+           "DONE(d)"  ; Task successfully completed
+           "KILL(k)") ; Task was cancelled, aborted, or is no longer applicable
 
-        ("r" "Reading List"
-         ((tags "reading"
-                ((org-agenda-overriding-header "Currently reading 📖")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp "^\\* Reading list .*"))))
-          (tags "+book-reading"
-                ((org-agenda-overriding-header "Next to read 📚")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp "^\\* Reading list .*"))))))
+          (sequence
+           "MAYBE(m)"
+           "YES(y)"
+           "|"
+           "NO(n)")
 
-        ("g" "Getting Things Done"
-         ((tags "inbox"
-                ((org-agenda-overriding-header "Inbox: 📬")))
-          (alltodo "TODO"
-                   ((org-agenda-overriding-header "Act: 📌")))
-          (tags "explore" ;; refine
-                ((org-agenda-overriding-header "Explore: 🔭")))))
+          (sequence
+           "EXAM(e)"
+           "CURRENT(c)"
+           "QUEUED(q)"
+           "|"
+           "PASSED(p)"))
 
-        ("p" "Projects"
-         ((tags "proj"
-                ((org-agenda-overriding-header "Projects: 🛠️")
-                 (org-agenda-skip-if 'done)))
-          (tags "proj"
-                ((org-agenda-overriding-header "Completed: ⚒️✅️")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'done))))))
+        org-todo-keyword-faces
+        '(("EXAM"  . +org-todo-todo)
+          ("YES"  . +org-todo-todo)
 
-        ("u" "Uni"
-         ((tags "+uni-exam"
-                ((org-agenda-overriding-header "Uni: 🎓")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp "^\\* Uni .*"))))
-          (tags "exam"
-                ((org-agenda-overriding-header "Exams todo: 📄")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("PROGRESS")))))
-          (tags "exam"
-                ((org-agenda-overriding-header "Current courses: 🏢")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO")))))
-          (tags "exam"
-                ((org-agenda-overriding-header "Remaining exams: 📆")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("WAIT")))))
-          (tags "+uni+proj"
-                ((org-agenda-overriding-header "Projects: 💻")))
-          (tags "exam done"
-                ((org-agenda-overriding-header "Exams Completed: 📄✅")
-                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'done))))))))
+          ("CURRENT" . +org-todo-active)
+
+          ("QUEUED"  . +org-todo-onhold)
+          ("WAIT" . +org-todo-onhold)
+          ("MAYBE" . +org-todo-onhold)
+
+          ("NO"   . +org-todo-cancel)
+          ("KILL" . +org-todo-cancel))))
 
 (use-package! ace-window
   :config
@@ -131,8 +127,8 @@
 
   (pushnew!
    which-key-replacement-alist
-   '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+   '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . " \\1"))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . " \\1"))))
 
 (use-package! google-translate
   :config
@@ -156,7 +152,7 @@ of delete the previous word."
                                (line-number-at-pos (point)))))
                    (eq orig dest))))
         (start? (eq (point) (line-beginning-position))))
-    (cond (start? (backward-delete-char 1))
+    (cond (start? (delete-char -1))
           (same? (backward-kill-word 1))
           (:else (kill-line 0)))))
 
@@ -223,8 +219,34 @@ of delete the previous word."
    :desc "translate (it -> en)" "p" #'google-translate-at-point
    :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse)
 
+  (:prefix ("n" . "denote")
+   :desc "create" "n" #'denote
+   :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
+   :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
+   :desc "menu" "m" #'denote-menu-list-notes
+   :desc "rename" "r" #'denote-rename-file
+   :desc "insert" "i" #'denote-link-or-create
+   :desc "link" "l" #'denote-link-or-create
+   :desc "select extension" "t" #'denote-type
+   :desc "backlink" "b" #'denote-backlink
+
+   (:prefix ("s" . "sequences")
+    :desc "sequence" "n" #'denote-sequence
+    :desc "dired" "f" #'denote-sequence-dired
+    :desc "link" "i" #'denote-sequence-link
+    :desc "link" "l" #'denote-sequence-link
+    :desc "new child" "c" #'denote-sequence-new-child-of-current
+    :desc "reparent" "r" #'denote-sequence-reparent
+    :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current))
+
+  (:prefix ("s" . "search")
+   :desc "browse url" "U" #'browse-url)
+
   (:prefix ("t" . "toggle")
    :desc "modeline" "M" #'hide-mode-line-mode)
+
+  (:prefix ("e" . "execute")
+   :desc "async shell command" "c" #'async-shell-command)
 
   (:prefix ("w" . "window")
    :desc "delete others" "1" #'delete-other-windows
@@ -254,7 +276,7 @@ of delete the previous word."
    :desc "undo" "u" #'tab-undo)))
 
 ;; HACK: for some reason this variable isn't defined when I load denote
-(defvar denote-file-prompt-use-files-matching-regexp nil)
+;; (defvar denote-file-prompt-use-files-matching-regexp nil)
 
 (use-package! denote
   :hook
@@ -269,27 +291,28 @@ of delete the previous word."
   (setq denote-known-keywords '("emacs" "programming" "algorithm"
                                 "datastructure" "cryptography" "logbook"
                                 "film" "book" "meta" "exams"))
-  :init
-  (map! :leader
-        (:prefix ("n" . "denote")
-         :desc "create" "n" #'denote
-         :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
-         :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
-         :desc "menu" "m" #'denote-menu-list-notes
-         :desc "rename" "r" #'denote-rename-file
-         :desc "insert" "i" #'denote-link-or-create
-         :desc "link" "l" #'denote-link-or-create
-         :desc "select extension" "t" #'denote-type
-         :desc "backlink" "b" #'denote-backlink
+  ;; :init
+  ;; (map! :leader
+  ;;       (:prefix ("n" . "denote")
+  ;;        :desc "create" "n" #'denote
+  ;;        :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
+  ;;        :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
+  ;;        :desc "menu" "m" #'denote-menu-list-notes
+  ;;        :desc "rename" "r" #'denote-rename-file
+  ;;        :desc "insert" "i" #'denote-link-or-create
+  ;;        :desc "link" "l" #'denote-link-or-create
+  ;;        :desc "select extension" "t" #'denote-type
+  ;;        :desc "backlink" "b" #'denote-backlink
 
-         (:prefix ("s" . "sequences")
-          :desc "sequence" "n" #'denote-sequence
-          :desc "dired" "f" #'denote-sequence-dired
-          :desc "link" "i" #'denote-sequence-link
-          :desc "link" "l" #'denote-sequence-link
-          :desc "new child" "c" #'denote-sequence-new-child-of-current
-          :desc "reparent" "r" #'denote-sequence-reparent
-          :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current))))
+  ;;        (:prefix ("s" . "sequences")
+  ;;         :desc "sequence" "n" #'denote-sequence
+  ;;         :desc "dired" "f" #'denote-sequence-dired
+  ;;         :desc "link" "i" #'denote-sequence-link
+  ;;         :desc "link" "l" #'denote-sequence-link
+  ;;         :desc "new child" "c" #'denote-sequence-new-child-of-current
+  ;;         :desc "reparent" "r" #'denote-sequence-reparent
+  ;;         :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current)))
+  )
 
 ;; WAIT: just to slow for now
 ;; (use-package! consult-denote
@@ -320,9 +343,11 @@ of delete the previous word."
   (org-mode . org-fragtog-mode)
   :config
   (setopt org-startup-with-latex-preview t)
-  (plist-put org-format-latex-options :scale 4)
-  (plist-put org-format-latex-options :foreground 'auto)
-  (plist-put org-format-latex-options :background 'auto))
+  ;; (setq org-startup-with-latex-preview t)
+  (plist-put org-format-latex-options :scale 2)
+  ;; (plist-put org-format-latex-options :foreground 'auto)
+  ;; (plist-put org-format-latex-options :background 'auto)
+  )
 
 (defmacro nto/aas-expand-and-move (snip offset)
   `(lambda () (interactive)
@@ -336,47 +361,47 @@ of delete the previous word."
    (latex-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-                    ";b" (nto/aas-expand-and-move "**** " 3)
-                    ";/" (nto/aas-expand-and-move "** " 2))
+    ";b" (nto/aas-expand-and-move "**** " 3)
+    ";/" (nto/aas-expand-and-move "** " 2))
   (aas-set-snippets 'org-mode
-                    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
-                    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
-                    ";ra" "\\rightarrow "
-                    ";la" "\\leftarrow "
-                    "__" (nto/aas-expand-and-move "_{}" 1)
-                    "^^" (nto/aas-expand-and-move "^{}" 1)
-                    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
-                    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
-                    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
-                    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
-                    ";b" (nto/aas-expand-and-move "** " 2)
-                    ";/" (nto/aas-expand-and-move "// " 2)
-                    ";A" "\\forall"
-                    ";E" "\\exists"
-                    ";|" "\\lor"
-                    ";&" "\\land"
-                    ";a" "\\alpha"
-                    ";;b" "\\beta"
-                    ";c" "\\gamma"
-                    ";d" "\\delta"
-                    ";e" "\\eta"
-                    ";E" "\\Eta"
-                    ";m" "\\mu"
-                    ";n" "\\nu"
-                    ";f" "\\phi"
-                    ";;f" "\\varphi"
-                    ";g" "\\nabla"
-                    ";s" "\\sigma"
-                    ";S" "\\Sigma"
-                    ";x" "\\times"
-                    ";." "\\cdot"
-                    ";;." "\\cdots"
-                    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
-                    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
-                    ";$" (nto/aas-expand-and-move "$$ " 2)
-                    ";4" (nto/aas-expand-and-move "$$ " 2)
-                    ";On" "O(n)"
-                    ";Oa" "O(1)"))
+    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
+    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
+    ";ra" "\\rightarrow "
+    ";la" "\\leftarrow "
+    "__" (nto/aas-expand-and-move "_{}" 1)
+    "^^" (nto/aas-expand-and-move "^{}" 1)
+    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
+    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
+    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
+    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
+    ";b" (nto/aas-expand-and-move "** " 2)
+    ";/" (nto/aas-expand-and-move "// " 2)
+    ";A" "\\forall"
+    ";E" "\\exists"
+    ";|" "\\lor"
+    ";&" "\\land"
+    ";a" "\\alpha"
+    ";;b" "\\beta"
+    ";c" "\\gamma"
+    ";d" "\\delta"
+    ";e" "\\eta"
+    ";E" "\\Eta"
+    ";m" "\\mu"
+    ";n" "\\nu"
+    ";f" "\\phi"
+    ";;f" "\\varphi"
+    ";g" "\\nabla"
+    ";s" "\\sigma"
+    ";S" "\\Sigma"
+    ";x" "\\times"
+    ";." "\\cdot"
+    ";;." "\\cdots"
+    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
+    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
+    ";$" (nto/aas-expand-and-move "$$ " 2)
+    ";4" (nto/aas-expand-and-move "$$ " 2)
+    ";On" "O(n)"
+    ";Oa" "O(1)"))
 
 (use-package! trashed
   :commands (trashed)

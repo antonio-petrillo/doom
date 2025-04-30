@@ -112,32 +112,35 @@
        tty               ; improve the terminal Emacs experience
 
        :lang
-       (cc +lsp)         ; C > C++ == 1
+       (cc +lsp)         ; C > C++ == 1 (even C-- > C++ == 1)
        (clojure +lsp +tree-sitter) ; The first love is never forgotten
        common-lisp       ; just for nyxt browser
        data              ; config/data formats
        emacs-lisp        ; drown in parentheses
-       (go +lsp +tree-sitter)         ; the hipster dialect
+       (go +lsp          ; mid as in (a + b) / 2
+           +tree-sitter)
        json              ; At least it ain't XML
        (java +lsp)       ; The first hate is never forgottern
        (latex +cdlatex)  ; writing papers in Emacs has never been so fun
        lua               ; just for neovim and other similar stuff
-       (markdown +grip)          ; writing docs for people to ignore
-       (ocaml +lsp +tree-sitter)
+       (markdown +grip)  ; writing docs for people to ignore
+       (ocaml +lsp       ; ora il corso di lp1 ha un senso
+              +tree-sitter)
        (org +dragndrop
             +hugo
             +noter
             +pomodoro
             +pandoc
             +present) ; organize your plain life in plain text
-       graphviz          ; diagrams for confusing yourself even more
-       (python +lsp
+       graphviz       ; diagrams for confusing yourself even more
+       (python +lsp   ; only for ml and data science stuff (robba re uni)
                +tree-sitter
-               +pyenv)            ; beautiful is better than ugly
-       (rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+               +pyenv)
+       (rust +lsp     ; a fair shot this time
+             +tree-sitter)
        sh                ; she sells {ba,z,fi}sh shells on the C xor
        yaml              ; JSON, but readable
-       (zig +lsp)               ; C, but simpler
+       (zig +lsp)        ; C, but simpler
 
        :email
        ;;(mu4e +org +gmail)
