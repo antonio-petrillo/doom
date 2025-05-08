@@ -22,3 +22,4 @@
 (package! trashed)
 
 (package! auto-yasnippet :disable t)
+(package! jinx)

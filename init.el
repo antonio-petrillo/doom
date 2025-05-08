@@ -82,7 +82,7 @@
 
        :checkers
        (syntax +icons)              ; tasing you for every semicolon you forget
-       (spell +hunspell) ; tasing you for misspelling mispelling
+       ;; (spell +hunspell) ; tasing you for misspelling mispelling ;; USE jinx
        ;; grammar           ; tasing grammar mistake every you make
 
        :tools
@@ -140,7 +140,7 @@
              +tree-sitter)
        sh                ; she sells {ba,z,fi}sh shells on the C xor
        yaml              ; JSON, but readable
-       (zig +lsp)        ; C, but simpler
+       (zig +lsp +tree-sitter) ; C, but simpler
 
        :email
        ;;(mu4e +org +gmail)

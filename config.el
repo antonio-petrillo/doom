@@ -130,6 +130,13 @@
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . " \\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . " \\1"))))
 
+(use-package! jinx
+  :hook ((org-mode . jinx-mode)
+         (markdown-mode . jinx-mode)
+         (text-mode . jinx-mode))
+  :config
+  (setopt jinx-languages "en_EN,it_IT"))
+
 (use-package! google-translate
   :config
   (set-popup-rule! "^\\*Google Translate" :slot -1 :size 0.2 :select t)
@@ -217,7 +224,11 @@ of delete the previous word."
 
   (:prefix ("l". "lang")
    :desc "translate (it -> en)" "p" #'google-translate-at-point
-   :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse)
+   :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse
+   :desc "spellcheck" "c" #'jinx-correct ;; C-u SPC l c -> correct whole buffer
+   :desc "languages" "l" #'jinx-languages
+   :desc "next err" "n" #'jinx-next
+   :desc "previous err" "p" #'jinx-previous)
 
   (:prefix ("n" . "denote")
    :desc "create" "n" #'denote
@@ -344,7 +355,7 @@ of delete the previous word."
   :config
   (setopt org-startup-with-latex-preview t)
   ;; (setq org-startup-with-latex-preview t)
-  (plist-put org-format-latex-options :scale 2)
+  ;; (plist-put org-format-latex-options :scale 2)
   ;; (plist-put org-format-latex-options :foreground 'auto)
   ;; (plist-put org-format-latex-options :background 'auto)
   )
