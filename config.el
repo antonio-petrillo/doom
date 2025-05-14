@@ -17,13 +17,12 @@
 (setq-default evil-escape-key-sequence "jk")
 
 (setq org-directory "~/Documents/Org/")
-
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
+(setq org-roam-directory (expand-file-name "roam" "~/Documents/Org"))
 
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
                          ))
 
-(add-hook 'org-mode-hook 'variable-pitch-mode)
 (after! org
   (setq org-agenda-custom-commands
         `(("u" "Uni"
@@ -41,16 +40,11 @@
   (setq org-todo-keywords
         '((sequence
            "TODO(t)"  ; A task that needs doing & is ready to do
+           "SKIP(s)"
            "WAIT(w)"  ; Something external is holding up this task
            "|"
            "DONE(d)"  ; Task successfully completed
            "KILL(k)") ; Task was cancelled, aborted, or is no longer applicable
-
-          (sequence
-           "MAYBE(m)"
-           "YES(y)"
-           "|"
-           "NO(n)")
 
           (sequence
            "EXAM(e)"
@@ -61,15 +55,13 @@
 
         org-todo-keyword-faces
         '(("EXAM"  . +org-todo-todo)
-          ("YES"  . +org-todo-todo)
 
           ("CURRENT" . +org-todo-active)
 
           ("QUEUED"  . +org-todo-onhold)
+          ("SKIP"  . +org-todo-onhold)
           ("WAIT" . +org-todo-onhold)
-          ("MAYBE" . +org-todo-onhold)
 
-          ("NO"   . +org-todo-cancel)
           ("KILL" . +org-todo-cancel))))
 
 (use-package! ace-window
@@ -135,7 +127,7 @@
          (markdown-mode . jinx-mode)
          (text-mode . jinx-mode))
   :config
-  (setopt jinx-languages "en_EN,it_IT"))
+  (setopt jinx-languages "en_US,it_IT"))
 
 (use-package! google-translate
   :config
@@ -168,8 +160,6 @@ of delete the previous word."
 
 (map!
  (:g "C-c a" #'org-agenda)
-
- (:leader :gnvi "n" nil)
 
  (:v  "R"     #'evil-multiedit-match-all
   :n  "M-a"   #'evil-multiedit-match-symbol-and-next
@@ -223,38 +213,18 @@ of delete the previous word."
    :desc "jump to end line" "e" #'avy-goto-end-of-line)
 
   (:prefix ("l". "lang")
-   :desc "translate (it -> en)" "p" #'google-translate-at-point
-   :desc "translate (en -> it)" "P" #'google-translate-at-point-reverse
+   :desc "translate (it -> en)" "t" #'google-translate-at-point
+   :desc "translate (en -> it)" "T" #'google-translate-at-point-reverse
    :desc "spellcheck" "c" #'jinx-correct ;; C-u SPC l c -> correct whole buffer
    :desc "languages" "l" #'jinx-languages
    :desc "next err" "n" #'jinx-next
    :desc "previous err" "p" #'jinx-previous)
 
-  (:prefix ("n" . "denote")
-   :desc "create" "n" #'denote
-   :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
-   :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
-   :desc "menu" "m" #'denote-menu-list-notes
-   :desc "rename" "r" #'denote-rename-file
-   :desc "insert" "i" #'denote-link-or-create
-   :desc "link" "l" #'denote-link-or-create
-   :desc "select extension" "t" #'denote-type
-   :desc "backlink" "b" #'denote-backlink
-
-   (:prefix ("s" . "sequences")
-    :desc "sequence" "n" #'denote-sequence
-    :desc "dired" "f" #'denote-sequence-dired
-    :desc "link" "i" #'denote-sequence-link
-    :desc "link" "l" #'denote-sequence-link
-    :desc "new child" "c" #'denote-sequence-new-child-of-current
-    :desc "reparent" "r" #'denote-sequence-reparent
-    :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current))
-
   (:prefix ("s" . "search")
    :desc "browse url" "U" #'browse-url)
 
   (:prefix ("t" . "toggle")
-   :desc "modeline" "M" #'hide-mode-line-mode)
+   :desc "modeline" "m" #'hide-mode-line-mode)
 
   (:prefix ("e" . "execute")
    :desc "async shell command" "c" #'async-shell-command)
@@ -286,55 +256,6 @@ of delete the previous word."
    :desc "rename" "r" #'tab-rename
    :desc "undo" "u" #'tab-undo)))
 
-;; HACK: for some reason this variable isn't defined when I load denote
-;; (defvar denote-file-prompt-use-files-matching-regexp nil)
-
-(use-package! denote
-  :hook
-  ((text-mode . denote-fontify-links-mode-maybe)
-   (dired-mode . denote-dired-mode)
-   (markdown-mode . denote-dired-mode))
-  :config
-  (setq denote-infer-keywords t)
-  (setq denote-sort-keywords t)
-  (setq denote-prompts '(title keywords))
-  (setq denote-file-type 'org)
-  (setq denote-known-keywords '("emacs" "programming" "algorithm"
-                                "datastructure" "cryptography" "logbook"
-                                "film" "book" "meta" "exams"))
-  ;; :init
-  ;; (map! :leader
-  ;;       (:prefix ("n" . "denote")
-  ;;        :desc "create" "n" #'denote
-  ;;        :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
-  ;;        :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
-  ;;        :desc "menu" "m" #'denote-menu-list-notes
-  ;;        :desc "rename" "r" #'denote-rename-file
-  ;;        :desc "insert" "i" #'denote-link-or-create
-  ;;        :desc "link" "l" #'denote-link-or-create
-  ;;        :desc "select extension" "t" #'denote-type
-  ;;        :desc "backlink" "b" #'denote-backlink
-
-  ;;        (:prefix ("s" . "sequences")
-  ;;         :desc "sequence" "n" #'denote-sequence
-  ;;         :desc "dired" "f" #'denote-sequence-dired
-  ;;         :desc "link" "i" #'denote-sequence-link
-  ;;         :desc "link" "l" #'denote-sequence-link
-  ;;         :desc "new child" "c" #'denote-sequence-new-child-of-current
-  ;;         :desc "reparent" "r" #'denote-sequence-reparent
-  ;;         :desc "new sibgling" "s" #'denote-sequence-new-sibling-of-current)))
-  )
-
-;; WAIT: just to slow for now
-;; (use-package! consult-denote
-;;   :config
-;;   (consult-denote-mode 1)
-;;   :init
-;;   (map! :leader
-;;         (:prefix ("n" . "notes")
-;;          :desc "consult find" "f" #'consult-denote-find
-;;          :desc "consult grep" "g" #'consult-denote-grep)))
-
 (setq! +evil-want-o/O-to-continue-comments nil
        evil-disable-insert-state-bindings t
        evil-kill-on-visual-paste nil)
@@ -348,17 +269,16 @@ of delete the previous word."
           org-modern-star nil
           org-modern-block-fringe nil))
 
-(use-package! org-fragtog
-  :after org
-  :hook
-  (org-mode . org-fragtog-mode)
+(use-package! org-latex-preview
   :config
-  (setopt org-startup-with-latex-preview t)
-  ;; (setq org-startup-with-latex-preview t)
-  ;; (plist-put org-format-latex-options :scale 2)
-  ;; (plist-put org-format-latex-options :foreground 'auto)
-  ;; (plist-put org-format-latex-options :background 'auto)
-  )
+  (plist-put org-latex-preview-appearance-options
+             :page-width 0.8)
+  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+  (setopt org-latex-preview-live t)
+  (setopt org-latex-preview-live-debounce 0.25))
+
+(after! org
+  (require 'org-roam-protocol))
 
 (defmacro nto/aas-expand-and-move (snip offset)
   `(lambda () (interactive)
@@ -378,6 +298,7 @@ of delete the previous word."
     "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
     "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
     ";ra" "\\rightarrow "
+    ";rt" "\\triangleright "
     ";la" "\\leftarrow "
     "__" (nto/aas-expand-and-move "_{}" 1)
     "^^" (nto/aas-expand-and-move "^{}" 1)
@@ -420,7 +341,29 @@ of delete the previous word."
   (setq trashed-action-confirmer 'y-or-n-p)
   (setq trashed-use-header-line t)
   (setq trashed-sort-key '("Date deleted" . t))
-  (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
+  (setq trashed-date-format "%Y-%m-%d %H:%M:%S")
+  (map! :leader
+        :desc "Trash" "C-," #'trashed))
+
+(use-package! websocket
+  :after org)
+
+(use-package! org-roam-ui
+  :after org
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+
+;; TODO: setup org structure templates
+
+;; TODO: setup org roam templates
+;; (after! roam
+;;   (setopt org-roam-capture-templates '()))
+
+;; TODO: roam + denote integration
+;; see https://org-roam.discourse.group/t/denotes-file-naming-scheme-and-org-roam/2769/25
 
 ;; TODO: explore `tab-bar-format' variable:
 ;; try to add to the tab bar
