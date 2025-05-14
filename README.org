@@ -1,0 +1,12 @@
+#+title: Nto's Doom Config
+
+* stuff I still need to figure it out
++ [ ] add clock and batter (only on laptop) ~tab-bar-format~
++ [ ] ~org-structure-templates~
++ [ ] export denote notes to ssg:
+  + [ ] only file with ~:publish:~ should get published
++ [ ] split config into multiple file:
+  + [ ] org
+  + [ ] keys
+  + [ ] languages
+  + [ ] misc

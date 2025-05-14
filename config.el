@@ -25,6 +25,7 @@
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
 
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
+                         ;; add more here
                          ))
 
 (after! org
@@ -380,10 +381,3 @@ of delete the previous word."
   (setq trashed-date-format "%Y-%m-%d %H:%M:%S")
   (map! :leader
         :desc "Trash" "C-," #'trashed))
-
-;; TODO: setup org structure templates
-
-;; TODO: explore `tab-bar-format' variable:
-;; try to add to the tab bar
-;; - clock time
-;; - battery display
