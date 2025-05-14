@@ -63,7 +63,7 @@
        ;;objed             ; text object editing for the innocent
        ;;parinfer          ; turn lisp into python, sort of
        rotate-text       ; cycle region at point between text candidates
-       ;;snippets          ; my elves. They type so I don't have to
+       snippets          ; my elves. They type so I don't have to
        ;;word-wrap         ; soft wrapping with language-aware indent
 
        :emacs
@@ -90,7 +90,7 @@
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;collab            ; buffers with friends
        ;;debugger          ; FIXME stepping through code, to help you add bugs
-       ;;direnv
+       direnv
        docker
        editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
@@ -117,6 +117,8 @@
        common-lisp       ; just for nyxt browser
        data              ; config/data formats
        emacs-lisp        ; drown in parentheses
+       ;;(elm +lsp
+       ;;     +tree-sitter) ; care for a cup of TEA?
        (go +lsp          ; mid as in (a + b) / 2
            +tree-sitter)
        json              ; At least it ain't XML
@@ -131,8 +133,7 @@
             +noter
             +pomodoro
             +pandoc
-            +present
-            +roam2) ; organize your plain life in plain text
+            +present) ; organize your plain life in plain text
        graphviz       ; diagrams for confusing yourself even more
        (python +lsp   ; only for ml and data science stuff (robba re uni)
                +tree-sitter

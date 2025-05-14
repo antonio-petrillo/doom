@@ -18,16 +18,11 @@
 (package! org-modern)
 (package! aas)
 
-;; TODO: integrate with roam
 (package! denote)
+(package! denote-explore)
 
 (package! trashed)
-
-(package! auto-yasnippet :disable t)
 (package! jinx)
-
-(unpin! org-roam)
-(package! org-roam-ui)
 
 ;; TODO: remove when this is merged into main org-mode
 (unpin! org)

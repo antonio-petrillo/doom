@@ -14,16 +14,21 @@
       doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
       doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
+(setopt aya-case-fold t)
+
 (setq-default evil-escape-key-sequence "jk")
+
+(after! corfu
+  (setopt corfu-preselect 'first))
 
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
-(setq org-roam-directory (expand-file-name "roam" "~/Documents/Org"))
 
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
                          ))
 
 (after! org
+
   (setq org-agenda-custom-commands
         `(("u" "Uni"
            (
@@ -64,6 +69,31 @@
 
           ("KILL" . +org-todo-cancel))))
 
+(use-package! denote
+  :hook
+  ((text-mode . denote-fontify-links-mode-maybe)
+   (dired-mode . denote-dired-mode)
+   (markdown-mode . denote-dired-mode))
+  :config
+  (setq denote-infer-keywords t)
+  (setq denote-sort-keywords t)
+  (setq denote-prompts '(title keywords))
+  (setq denote-file-type 'org)
+  (setq denote-known-keywords '("emacs" "programming" "algorithm"
+                                "meta" "exams")))
+
+(map! :leader :nv "n" nil)
+(map! :leader
+      (:prefix ("d" . "denote")
+       :desc "create" "n" #'denote
+       :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
+       :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
+       :desc "rename" "r" #'denote-rename-file
+       :desc "insert" "i" #'denote-link-or-create
+       :desc "link" "l" #'denote-link-or-create
+       :desc "select extension" "t" #'denote-type
+       :desc "backlink" "b" #'denote-backlink))
+
 (use-package! ace-window
   :config
   (setopt aw-scope 'frame)
@@ -87,7 +117,6 @@
 (after! dired
   (use-package! dired-hide-dotfiles)
   (add-hook! 'dired-mode-hook  #'dired-hide-dotfiles-mode)
-
   (map! :map dired-mode-map
         "C-h" 'dired-hide-dotfiles-mode
         "h" #'dired-up-directory
@@ -159,6 +188,13 @@ of delete the previous word."
   :symbols '(("var" "const")))
 
 (map!
+ (:when (modulep! :editor snippets)
+   ;; auto-yasnippet
+   :i  [C-tab] nil
+   :nv [C-tab] nil
+   :i  "M-RET" #'aya-expand
+   :nv "M-RET" #'aya-create)
+
  (:g "C-c a" #'org-agenda)
 
  (:v  "R"     #'evil-multiedit-match-all
@@ -256,9 +292,12 @@ of delete the previous word."
    :desc "rename" "r" #'tab-rename
    :desc "undo" "u" #'tab-undo)))
 
-(setq! +evil-want-o/O-to-continue-comments nil
-       evil-disable-insert-state-bindings t
-       evil-kill-on-visual-paste nil)
+(after! evil
+  (setopt +evil-want-o/O-to-continue-comments nil
+          evil-disable-insert-state-bindings t
+          evil-move-cursor-back nil
+          evil-want-minibuffer t
+          evil-kill-on-visual-paste nil))
 
 (use-package! org-modern
   :hook
@@ -276,9 +315,6 @@ of delete the previous word."
   (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
   (setopt org-latex-preview-live t)
   (setopt org-latex-preview-live-debounce 0.25))
-
-(after! org
-  (require 'org-roam-protocol))
 
 (defmacro nto/aas-expand-and-move (snip offset)
   `(lambda () (interactive)
@@ -345,25 +381,7 @@ of delete the previous word."
   (map! :leader
         :desc "Trash" "C-," #'trashed))
 
-(use-package! websocket
-  :after org)
-
-(use-package! org-roam-ui
-  :after org
-  :config
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start t))
-
 ;; TODO: setup org structure templates
-
-;; TODO: setup org roam templates
-;; (after! roam
-;;   (setopt org-roam-capture-templates '()))
-
-;; TODO: roam + denote integration
-;; see https://org-roam.discourse.group/t/denotes-file-naming-scheme-and-org-roam/2769/25
 
 ;; TODO: explore `tab-bar-format' variable:
 ;; try to add to the tab bar
