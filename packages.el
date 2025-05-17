@@ -19,6 +19,9 @@
 (package! aas)
 
 (package! denote)
+(package! denote-silo)
+(package! denote-org)
+(package! denote-sequence)
 (package! denote-explore)
 
 (package! trashed)

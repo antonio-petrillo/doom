@@ -15,12 +15,16 @@
       doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
 (setopt aya-case-fold t)
+(setopt xref-search-program 'ripgrep)
 
 (setq-default evil-escape-key-sequence "jk")
 
+
 (after! corfu
   (setopt corfu-preselect 'first
-          corfu-quit-at-boundary t))
+          corfu-quit-at-boundary t)
+  (map! :map corfu-map
+        "C-SPC" #'corfu-insert-separator))
 
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
@@ -74,6 +78,18 @@
 
           ("KILL" . +org-todo-cancel))))
 
+(map! :leader :gnvi "p" nil)
+(map! :leader
+      (:prefix ("p" . "project")
+       :desc "switch buffer" "b" #'project-switch-to-buffer
+       :desc "switch project" "p" #'project-switch-project
+       :desc "compile" "c" #'project-compile
+       :desc "find file" "f" #'project-find-file
+       :desc "kill buffer" "k" #'project-kill-buffers
+       :desc "async command" "&" #'project-async-shell-command
+       :desc "eshell" "e" #'project-eshell))
+(define-key ctl-x-map "p" project-prefix-map)
+
 (use-package! denote
   :hook
   ((text-mode . denote-fontify-links-mode-maybe)
@@ -84,20 +100,51 @@
   (setq denote-sort-keywords t)
   (setq denote-prompts '(title keywords))
   (setq denote-file-type 'org)
-  (setq denote-known-keywords '("emacs" "programming" "algorithm"
-                                "meta" "exams")))
+  (setq denote-known-keywords '("emacs" "programming" "algorithm" "meta")))
 
-(map! :leader :nv "n" nil)
+(with-eval-after-load 'org-capture
+  (setopt org-capture-templates
+          '(("n" "new note" plain
+             (file denote-last-path)
+             #'denote-org-capture
+             :no-save t
+             :immediate-finish nil
+             :kill-buffer t
+             :jump-to-captured t)
+            )))
+
+(map! :leader :gnvi "n" nil)
 (map! :leader
-      (:prefix ("d" . "denote")
-       :desc "create" "n" #'denote
+      (:prefix ("n" . "denote")
+       :desc "new" "n" #'denote-open-or-create
        :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
        :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
-       :desc "rename" "r" #'denote-rename-file
        :desc "insert" "i" #'denote-link-or-create
        :desc "link" "l" #'denote-link-or-create
        :desc "select extension" "t" #'denote-type
-       :desc "backlink" "b" #'denote-backlink))
+       :desc "grep" "g" #'denote-grep
+       :desc "backlinks" "b" #'denote-backlinks
+       :desc "rename using front matter" "r" #'denote-rename-file-using-front-matter
+       :desc "rename using front matter (all file)" "C-r" #'denote-explore-sync-metadata
+
+       (:prefix ("q" . "query")
+        :desc "contents" "c" #'denote-query-contents-link
+        :desc "filenames" "f" #'denote-query-filenames-link)
+
+       (:prefix ("s" . "sequence")
+        :desc "new" "n" #'denote-sequence
+        :desc "link" "l" #'denote-sequence-link
+        :desc "insert" "i" #'denote-sequence-link
+        :desc "find" "f" #'denote-sequence-find
+        :desc "new child" "c" #'denote-sequence-new-child-of-current
+        :desc "new sibling" "s" #'denote-sequence-new-sibling-of-current
+        :desc "reparent" "r" #'denote-sequence-reparent)
+
+       (:prefix ("S" . "silos")
+        :desc "dired" "d" #'denote-silo-dired
+        :desc "new" "n" #'denote-silo-open-or-create
+        :desc "change directory" "c" #'denote-silo-cd
+        :desc "select and then cmd" "s" #'denote-silo-select-silo-then-command)))
 
 (use-package! ace-window
   :config
@@ -123,7 +170,7 @@
   (use-package! dired-hide-dotfiles)
   (add-hook! 'dired-mode-hook  #'dired-hide-dotfiles-mode)
   (map! :map dired-mode-map
-        "C-h" 'dired-hide-dotfiles-mode
+        "C-h" #'dired-hide-dotfiles-mode
         "h" #'dired-up-directory
         "l" #'dired-find-file
         "m" #'dired-mark
@@ -192,6 +239,10 @@ of delete the previous word."
 (set-rotate-patterns! 'zig-mode
   :symbols '(("var" "const")))
 
+(after! evil
+  (map! (:g "C-c a" #'org-agenda
+            "C-," #'embark-dwim)))
+
 (map!
  (:when (modulep! :editor snippets)
    ;; auto-yasnippet
@@ -199,8 +250,6 @@ of delete the previous word."
    :nv [C-tab] nil
    :i  "M-RET" #'aya-expand
    :nv "M-RET" #'aya-create)
-
- (:g "C-c a" #'org-agenda)
 
  (:v  "R"     #'evil-multiedit-match-all
   :n  "M-a"   #'evil-multiedit-match-symbol-and-next
@@ -335,45 +384,18 @@ of delete the previous word."
     ";b" (nto/aas-expand-and-move "**** " 3)
     ";/" (nto/aas-expand-and-move "** " 2))
   (aas-set-snippets 'org-mode
-    "mbb" (nto/aas-expand-and-move "\\mathbb{}" 1)
-    "mca" (nto/aas-expand-and-move "\\mathcal{}" 1)
-    ";ra" "\\rightarrow "
-    ";rt" "\\triangleright "
-    ";la" "\\leftarrow "
-    "__" (nto/aas-expand-and-move "_{}" 1)
-    "^^" (nto/aas-expand-and-move "^{}" 1)
-    "_sum" (nto/aas-expand-and-move "\\sum_{}" 1)
-    "^sum" (nto/aas-expand-and-move "\\sum_{}^{}" 4)
-    "_int" (nto/aas-expand-and-move "\\int_{}" 1)
-    "^int" (nto/aas-expand-and-move "\\int_{}^{}" 4)
-    ";b" (nto/aas-expand-and-move "** " 2)
-    ";/" (nto/aas-expand-and-move "// " 2)
-    ";A" "\\forall"
-    ";E" "\\exists"
-    ";|" "\\lor"
-    ";&" "\\land"
-    ";a" "\\alpha"
-    ";;b" "\\beta"
-    ";c" "\\gamma"
-    ";d" "\\delta"
-    ";e" "\\eta"
-    ";E" "\\Eta"
-    ";m" "\\mu"
-    ";n" "\\nu"
-    ";f" "\\phi"
-    ";;f" "\\varphi"
-    ";g" "\\nabla"
-    ";s" "\\sigma"
-    ";S" "\\Sigma"
-    ";x" "\\times"
+    ";mb" (nto/aas-expand-and-move "\\mathbb{}" 1)
+    ";mc" (nto/aas-expand-and-move "\\mathcal{}" 1)
+    ";b" (nto/aas-expand-and-move "**" 1)
+    ";/" (nto/aas-expand-and-move "//" 1)
+    ";-" (nto/aas-expand-and-move "__" 1)
+    ";>" "\\implies"
+    ";<" "\\impliedby"
+    ";'" "\\prime"
     ";." "\\cdot"
     ";;." "\\cdots"
-    ";;$" (nto/aas-expand-and-move "$$$$ " 3)
-    ";;4" (nto/aas-expand-and-move "$$$$ " 3)
-    ";$" (nto/aas-expand-and-move "$$ " 2)
-    ";4" (nto/aas-expand-and-move "$$ " 2)
-    ";On" "O(n)"
-    ";Oa" "O(1)"))
+    ";;4" (nto/aas-expand-and-move "$$$$" 2)
+    ";4" (nto/aas-expand-and-move "$$" 1)))
 
 (use-package! trashed
   :commands (trashed)
@@ -382,5 +404,6 @@ of delete the previous word."
   (setq trashed-use-header-line t)
   (setq trashed-sort-key '("Date deleted" . t))
   (setq trashed-date-format "%Y-%m-%d %H:%M:%S")
+  :init
   (map! :leader
         :desc "Trash" "C-," #'trashed))
