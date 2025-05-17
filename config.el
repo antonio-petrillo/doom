@@ -19,7 +19,8 @@
 (setq-default evil-escape-key-sequence "jk")
 
 (after! corfu
-  (setopt corfu-preselect 'first))
+  (setopt corfu-preselect 'first
+          corfu-quit-at-boundary t))
 
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
@@ -32,8 +33,7 @@
 
   (setq org-agenda-custom-commands
         `(("u" "Uni"
-           (
-            (todo "EXAM"
+           ((todo "EXAM"
                   ((org-agenda-overriding-header "Exams Todo: ")))
             (todo "CURRENT"
                   ((org-agenda-overriding-header "Current Courses: ")))
@@ -41,7 +41,11 @@
                   ((org-agenda-overriding-header "Next Courses: ")))
             (todo "PASSED"
                   ((org-agenda-overriding-header "Passed: "))))
-           ((org-agenda-files '(,(expand-file-name "Uni.org" org-directory)))))))
+           ((org-agenda-files '(,(expand-file-name "Uni.org" org-directory)))))
+          ("n" "Notes"
+           ((todo "TODO"
+                  ((org-agenda-overriding-header "Notes to complete: "))))
+           ((org-agenda-files '(,denote-directory))))))
 
   (setq org-todo-keywords
         '((sequence
@@ -297,7 +301,6 @@ of delete the previous word."
   (setopt +evil-want-o/O-to-continue-comments nil
           evil-disable-insert-state-bindings t
           evil-move-cursor-back nil
-          evil-want-minibuffer t
           evil-kill-on-visual-paste nil))
 
 (use-package! org-modern

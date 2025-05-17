@@ -96,7 +96,7 @@
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        (lookup +docsets +offline +dictionary)              ; navigate your code and its documentation
-       (lsp +peek)               ; M-x vscode
+       (lsp +eglot)               ; M-x vscode
        (magit +forge)             ; a git porcelain for Emacs
        make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -122,7 +122,7 @@
        (go +lsp          ; mid as in (a + b) / 2
            +tree-sitter)
        json              ; At least it ain't XML
-       (java +lsp +tree-sitter)       ; The first hate is never forgottern
+       (java +tree-sitter)       ; The first hate is never forgottern
        (latex +cdlatex)  ; writing papers in Emacs has never been so fun
        lua               ; just for neovim and other similar stuff
        (markdown +grip)  ; writing docs for people to ignore
