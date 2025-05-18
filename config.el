@@ -14,7 +14,6 @@
       doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
       doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
-(setopt aya-case-fold t)
 (setopt xref-search-program 'ripgrep)
 
 (setq-default evil-escape-key-sequence "jk")
@@ -28,6 +27,7 @@
 
 (setq org-directory "~/Documents/Org/")
 (setq denote-directory (expand-file-name "notes" "~/Documents/Org"))
+(setq tempel-path (expand-file-name "templates/*.eld" doom-user-dir))
 
 (setq org-agenda-files `(,(expand-file-name "Agenda.org" org-directory)
                          ;; add more here
@@ -98,9 +98,13 @@
   :config
   (setq denote-infer-keywords t)
   (setq denote-sort-keywords t)
-  (setq denote-prompts '(title keywords))
+  (setq denote-prompts '(title keywords template))
   (setq denote-file-type 'org)
-  (setq denote-known-keywords '("emacs" "programming" "algorithm" "meta")))
+  (setq denote-known-keywords '("emacs" "programming" "algorithm" "meta"))
+  (setq denote-templates
+        '((empty . "")
+          (meta . "Meta note that talks about ")
+          (todo . "* TODO this note will talk about "))))
 
 (with-eval-after-load 'org-capture
   (setopt org-capture-templates
@@ -110,8 +114,7 @@
              :no-save t
              :immediate-finish nil
              :kill-buffer t
-             :jump-to-captured t)
-            )))
+             :jump-to-captured t))))
 
 (map! :leader :gnvi "n" nil)
 (map! :leader
@@ -247,9 +250,7 @@ of delete the previous word."
  (:when (modulep! :editor snippets)
    ;; auto-yasnippet
    :i  [C-tab] nil
-   :nv [C-tab] nil
-   :i  "M-RET" #'aya-expand
-   :nv "M-RET" #'aya-create)
+   :nv [C-tab] nil)
 
  (:v  "R"     #'evil-multiedit-match-all
   :n  "M-a"   #'evil-multiedit-match-symbol-and-next
@@ -369,6 +370,47 @@ of delete the previous word."
   (setopt org-latex-preview-live t)
   (setopt org-latex-preview-live-debounce 0.25))
 
+(use-package! trashed
+  :commands (trashed)
+  :config
+  (setq trashed-action-confirmer 'y-or-n-p)
+  (setq trashed-use-header-line t)
+  (setq trashed-sort-key '("Date deleted" . t))
+  (setq trashed-date-format "%Y-%m-%d %H:%M:%S")
+  :init
+  (map! :leader
+        :desc "Trash" "C-," #'trashed))
+
+;; Configure Tempel
+(use-package! tempel
+  :hook ((conf-mode . nto/tempel-setup-capf)
+         (prog-mode . nto/tempel-setup-capf)
+         (text-mode . nto/tempel-setup-capf)
+         )
+  :custom
+  (tempel-trigger-prefix ";")
+
+  :bind (("M-+" . tempel-complete)
+         ("M-*" . tempel-insert))
+
+  :init
+  (defun nto/tempel-setup-capf ()
+    (setq-local completion-at-point-functions
+                (cons #'tempel-complete
+                      completion-at-point-functions))))
+
+(map! :map tempel-map
+      "RET" #'tempel-done
+      "C-e" #'tempel-end
+      "C-n" #'tempel-next
+      [tab] #'tempel-next
+      "TAB" #'tempel-next
+      "C-p" #'tempel-previous
+      [S-tab] #'tempel-previous
+      "S-TAB" #'tempel-previous
+      "C-q" #'tempel-abort
+      "C-a" #'tempel-beginning)
+
 (defmacro nto/aas-expand-and-move (snip offset)
   `(lambda () (interactive)
      (insert ,snip)
@@ -381,29 +423,19 @@ of delete the previous word."
    (latex-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-    ";b" (nto/aas-expand-and-move "**** " 3)
-    ";/" (nto/aas-expand-and-move "** " 2))
+    ";b" '(tempel "**" p "** " q)
+    ";/" '(tempel "*" p "* " q))
   (aas-set-snippets 'org-mode
-    ";mb" (nto/aas-expand-and-move "\\mathbb{}" 1)
-    ";mc" (nto/aas-expand-and-move "\\mathcal{}" 1)
-    ";b" (nto/aas-expand-and-move "**" 1)
-    ";/" (nto/aas-expand-and-move "//" 1)
-    ";-" (nto/aas-expand-and-move "__" 1)
-    ";>" "\\implies"
-    ";<" "\\impliedby"
-    ";'" "\\prime"
-    ";." "\\cdot"
-    ";;." "\\cdots"
-    ";;4" (nto/aas-expand-and-move "$$$$" 2)
-    ";4" (nto/aas-expand-and-move "$$" 1)))
-
-(use-package! trashed
-  :commands (trashed)
-  :config
-  (setq trashed-action-confirmer 'y-or-n-p)
-  (setq trashed-use-header-line t)
-  (setq trashed-sort-key '("Date deleted" . t))
-  (setq trashed-date-format "%Y-%m-%d %H:%M:%S")
-  :init
-  (map! :leader
-        :desc "Trash" "C-," #'trashed))
+    ";mb" '(tempel "\\mathbb{" p "} " q)
+    ";mc" '(tempel "\\mathcal{" p "} " q)
+    ";b" '(tempel "*" p "* " q)
+    ";/" '(tempel "/" p "/ " q)
+    ";-" '(tempel "_" p "_ " q)
+    ";i" '(tempel "src_" p "{" q "}")
+    ";>" "\\implies "
+    ";<" "\\impliedby "
+    ";'" "\\prime "
+    ";." "\\cdot "
+    ";;." "\\cdots "
+    ";;4" '(tempel "$$" p "$$ " q)
+    ";4" '(tempel "$$" p "$$ " q)))

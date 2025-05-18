@@ -26,6 +26,9 @@
 
 (package! trashed)
 (package! jinx)
+(package! tempel)
+(package! tempel-collection)
+(package! auto-yasnippet :disable t)
 
 ;; TODO: remove when this is merged into main org-mode
 (unpin! org)
