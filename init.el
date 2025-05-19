@@ -77,7 +77,7 @@
        :term
        eshell            ; the elisp shell that works everywhere
        ;;shell             ; simple shell REPL for Emacs
-       ;;term              ; basic terminal emulator for Emacs
+       term              ; basic terminal emulator for Emacs
        ;;vterm             ; the best terminal emulation in Emacs
 
        :checkers
@@ -117,8 +117,8 @@
        common-lisp       ; just for nyxt browser
        data              ; config/data formats
        emacs-lisp        ; drown in parentheses
-       ;;(elm +lsp
-       ;;     +tree-sitter) ; care for a cup of TEA?
+       (elm +lsp
+            +tree-sitter) ; care for a cup of TEA?
        (go +lsp          ; mid as in (a + b) / 2
            +tree-sitter)
        json              ; At least it ain't XML

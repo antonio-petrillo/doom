@@ -14,6 +14,12 @@
 (package! odin-mode
   :recipe (:host sourcehut
            :repo "mgmarlow/odin-mode"))
+(package! gleam-ts-mode
+  :recipe (:host github
+           :repo "gleam-lang/gleam-mode"
+           :branch "main"
+           :files ("gleam-ts-*.el")))
+(package! roc-ts-mode :pin "8a85436227a9fdc07bce9ad773a46ba78cb3cdd0")
 (package! dired-hide-dotfiles)
 (package! org-modern)
 (package! aas)

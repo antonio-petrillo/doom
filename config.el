@@ -8,7 +8,6 @@
 (setq default-input-method "italian-postfix")
 
 (setq display-line-numbers-type 'relative)
-(setq org-hide-emphasis-markers t)
 
 (setq doom-font (font-spec :family "Aporetic Serif Mono" :size 20)
       doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
@@ -35,6 +34,7 @@
 
 (after! org
 
+  (setq org-hide-emphasis-markers t)
   (setq org-agenda-custom-commands
         `(("u" "Uni"
            ((todo "EXAM"
@@ -104,7 +104,8 @@
   (setq denote-templates
         '((empty . "")
           (meta . "Meta note that talks about ")
-          (todo . "* TODO this note will talk about "))))
+          (todo . "* TODO this note will talk about ")
+          (spark . "* TODO process "))))
 
 (with-eval-after-load 'org-capture
   (setopt org-capture-templates
@@ -114,7 +115,11 @@
              :no-save t
              :immediate-finish nil
              :kill-buffer t
-             :jump-to-captured t))))
+             :jump-to-captured t)
+            ;; TODO "i" "inbox"
+            ;; TODO "a" "appointment"
+            ;; TODO "m" "mail"
+            )))
 
 (map! :leader :gnvi "n" nil)
 (map! :leader
@@ -122,13 +127,18 @@
        :desc "new" "n" #'denote-open-or-create
        :desc "find" "f" #'(lambda () (interactive) (consult-find denote-directory))
        :desc "dired" "d" #'(lambda () (interactive) (dired denote-directory))
-       :desc "insert" "i" #'denote-link-or-create
-       :desc "link" "l" #'denote-link-or-create
        :desc "select extension" "t" #'denote-type
        :desc "grep" "g" #'denote-grep
        :desc "backlinks" "b" #'denote-backlinks
        :desc "rename using front matter" "r" #'denote-rename-file-using-front-matter
        :desc "rename using front matter (all file)" "C-r" #'denote-explore-sync-metadata
+       :desc "insert" "i" #'denote-link-or-create
+
+       (:prefix ("l" . "link")
+        :desc "or create" "l" #'denote-link-or-create
+        :desc "by content" "c" #'denote-link-to-file-with-contents
+        :desc "(all) by content" "a" #'denote-link-to-all-files-with-contents
+        :desc "to heading (org)" "h" #'denote-org-link-to-heading)
 
        (:prefix ("q" . "query")
         :desc "contents" "c" #'denote-query-contents-link
@@ -386,9 +396,10 @@ of delete the previous word."
   :hook ((conf-mode . nto/tempel-setup-capf)
          (prog-mode . nto/tempel-setup-capf)
          (text-mode . nto/tempel-setup-capf)
-         )
+         (prog-mode . tempel-abbrev-mode)
+         (org-mode . tempel-abbrev-mode))
   :custom
-  (tempel-trigger-prefix ";")
+  (tempel-trigger-prefix "<")
 
   :bind (("M-+" . tempel-complete)
          ("M-*" . tempel-insert))
@@ -400,42 +411,86 @@ of delete the previous word."
                       completion-at-point-functions))))
 
 (map! :map tempel-map
-      "RET" #'tempel-done
+      "C-RET" #'tempel-done
       "C-e" #'tempel-end
       "C-n" #'tempel-next
-      [tab] #'tempel-next
-      "TAB" #'tempel-next
       "C-p" #'tempel-previous
-      [S-tab] #'tempel-previous
-      "S-TAB" #'tempel-previous
       "C-q" #'tempel-abort
       "C-a" #'tempel-beginning)
 
-(defmacro nto/aas-expand-and-move (snip offset)
+(defmacro nto/tempel-by-name (name)
+  "Insert a tempel snippet directly from file instead of writing it inline"
   `(lambda () (interactive)
-     (insert ,snip)
-     (backward-char ,offset)))
+     (tempel-insert ,name)))
 
 (use-package! aas
   :hook
-  ((org-mode . aas-activate-for-major-mode)
-   (markdown-mode . aas-activate-for-major-mode)
-   (latex-mode . aas-activate-for-major-mode))
+  ((text-mode . aas-activate-for-major-mode)
+   (prog-mode . aas-activate-for-major-mode))
   :config
   (aas-set-snippets 'markdown-mode
-    ";b" '(tempel "**" p "** " q)
-    ";/" '(tempel "*" p "* " q))
+    ";b" '(tempel "**" q "**")
+    ";/" '(tempel "*" q "*"))
   (aas-set-snippets 'org-mode
-    ";mb" '(tempel "\\mathbb{" p "} " q)
-    ";mc" '(tempel "\\mathcal{" p "} " q)
-    ";b" '(tempel "*" p "* " q)
-    ";/" '(tempel "/" p "/ " q)
-    ";-" '(tempel "_" p "_ " q)
-    ";i" '(tempel "src_" p "{" q "}")
-    ";>" "\\implies "
-    ";<" "\\impliedby "
-    ";'" "\\prime "
-    ";." "\\cdot "
-    ";;." "\\cdots "
-    ";;4" '(tempel "$$" p "$$ " q)
-    ";4" '(tempel "$$" p "$$ " q)))
+    ";b" '(tempel "*" q "*")
+    ";/" '(tempel "/" q "/")
+    ";-" '(tempel "_" q "_")
+    ";i" (nto/tempel-by-name 'isrc)
+    ";c" "+ [ ] "
+    ";;4" '(tempel "$$" q "$$")
+    ";4" '(tempel "$" q "$"))
+  (aas-set-snippets 'org-mode
+    :cond #'texmathp
+    ";mb" '(tempel "\\mathbb{" q "}")
+    ";mc" '(tempel "\\mathcal{" q "}")
+    ";>" "\\implies"
+    ";<" "\\impliedby"
+    ";p" "\\prime"
+    ";." "\\cdot"
+    ";;." "\\cdots"))
+
+(use-package! gleam-ts-mode
+  :config
+  (set-formatter! 'gleam-ts-format '("gleam" "format" "--stdin") :modes '(gleam-ts-mode))
+  (when (modulep! :tools lsp +eglot)
+    (set-eglot-client! 'gleam-ts-mode '("gleam" "lsp"))))
+
+(after! gleam-ts-mode
+  (unless (treesit-language-available-p 'gleam)
+    (gleam-ts-install-grammar)))
+
+(after! treesit
+  (pushnew! auto-mode-alist '("\\.gleam$" . gleam-ts-mode) '("\\.roc$" . roc-ts-mode)))
+
+(use-package! roc-ts-mode
+  :mode ("\\.roc\\'" . roc-ts-mode)
+  :config
+  (pushnew! treesit-language-source-alist
+            '(roc-new-syntax . ("https://github.com/faldor20/tree-sitter-roc/" "new-syntax")))
+  (map! :map roc-ts-mode-map
+        (:localleader
+         "f" #'roc-ts-format
+         "b" #'roc-ts-build
+         "t" #'roc-ts-test
+         "r" #'roc-ts-run
+         "d" #'roc-ts-dev
+         "c" #'roc-ts-check
+         "e" #'roc-ts-repl
+         (:prefix ("s" . "roc-start")
+                  "a" #'roc-ts-start-app
+                  "p" #'roc-ts-start-pkg
+                  "u" #'roc-ts-start-update)))
+
+  (set-popup-rule! (rx bol "*roc-ts-repl") :size 0.3)
+
+  (when (modulep! :tools lsp +eglot)
+    (set-eglot-client! 'roc-ts-mode '("roc_language_server")))
+  (add-hook 'roc-ts-mode-local-vars-hook #'lsp!)
+
+  ;; Formatting
+  (set-formatter! 'roc-ts-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-ts-mode))
+  (setq-hook! 'roc-ts-mode-local-vars-hook
+    +format-with 'roc-ts-format)
+
+  ;; Keywords that should trigger electric indentation
+  (set-electric! 'roc-ts-mode :words '("else")))
