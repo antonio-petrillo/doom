@@ -122,7 +122,7 @@
        (go +lsp          ; mid as in (a + b) / 2
            +tree-sitter)
        json              ; At least it ain't XML
-       (java +tree-sitter)       ; The first hate is never forgottern
+       (java +tree-sitter) ; The first hate is never forgottern
        (latex +cdlatex)  ; writing papers in Emacs has never been so fun
        lua               ; just for neovim and other similar stuff
        (markdown +grip)  ; writing docs for people to ignore
@@ -132,6 +132,7 @@
             +hugo
             +noter
             +pomodoro
+            +pretty
             +pandoc
             +present) ; organize your plain life in plain text
        graphviz       ; diagrams for confusing yourself even more

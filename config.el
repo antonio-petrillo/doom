@@ -13,14 +13,13 @@
       doom-variable-pitch-font (font-spec :family "Aporetic Sans" :size 20)
       doom-big-font (font-spec :family "Aporetic Serif Mono" :size 36))
 
-(setopt xref-search-program 'ripgrep)
+(setq! xref-search-program 'ripgrep)
 
 (setq-default evil-escape-key-sequence "jk")
 
-
 (after! corfu
-  (setopt corfu-preselect 'first
-          corfu-quit-at-boundary t)
+  (setq! corfu-preselect 'first
+         corfu-quit-at-boundary t)
   (map! :map corfu-map
         "C-SPC" #'corfu-insert-separator))
 
@@ -33,6 +32,12 @@
                          ))
 
 (after! org
+
+  (setq denote-templates
+        '((empty . "")
+          (meta . "Meta note that talks about ")
+          (todo . "* TODO this note will talk about ")
+          (spark . "* TODO process ")))
 
   (setq org-hide-emphasis-markers t)
   (setq org-agenda-custom-commands
@@ -108,18 +113,18 @@
           (spark . "* TODO process "))))
 
 (with-eval-after-load 'org-capture
-  (setopt org-capture-templates
-          '(("n" "new note" plain
-             (file denote-last-path)
-             #'denote-org-capture
-             :no-save t
-             :immediate-finish nil
-             :kill-buffer t
-             :jump-to-captured t)
-            ;; TODO "i" "inbox"
-            ;; TODO "a" "appointment"
-            ;; TODO "m" "mail"
-            )))
+  (setq! org-capture-templates
+         '(("n" "new note" plain
+            (file denote-last-path)
+            #'denote-org-capture
+            :no-save t
+            :immediate-finish nil
+            :kill-buffer t
+            :jump-to-captured t)
+           ;; TODO "i" "inbox"
+           ;; TODO "a" "appointment"
+           ;; TODO "m" "mail"
+           )))
 
 (map! :leader :gnvi "n" nil)
 (map! :leader
@@ -159,25 +164,26 @@
         :desc "change directory" "c" #'denote-silo-cd
         :desc "select and then cmd" "s" #'denote-silo-select-silo-then-command)))
 
+
 (use-package! ace-window
   :config
-  (setopt aw-scope 'frame)
-  (setopt aw-dispatch-always nil)
-  (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (setopt aw-dispatch-alist
-          '((?x aw-delete-window "Delete Windows")
-            (?m aw-swap-window "Swap Windows")
-            (?M aw-move-window "Move Windows")
-            (?c aw-move-window "Move Windows")
-            (?j aw-switch-buffer-in-window "Select Buffer")
-            (?f aw-flip-window "Previous window")
-            (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
-            (?e aw-execute-command-other-window "Execute Command Other Window")
-            (?S aw-split-window-fair "Split Fair Window")
-            (?v aw-split-window-vert "Split Vert Window")
-            (?b aw-split-window-horz "Split Horz Window")
-            (?o delete-other-windows "Delete Other Windows")
-            (?? aw-show-dispatch-help "Help"))))
+  (setq! aw-scope 'frame)
+  (setq! aw-dispatch-always nil)
+  (setq! aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (setq! aw-dispatch-alist
+         '((?x aw-delete-window "Delete Windows")
+           (?m aw-swap-window "Swap Windows")
+           (?M aw-move-window "Move Windows")
+           (?c aw-move-window "Move Windows")
+           (?j aw-switch-buffer-in-window "Select Buffer")
+           (?f aw-flip-window "Previous window")
+           (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
+           (?e aw-execute-command-other-window "Execute Command Other Window")
+           (?S aw-split-window-fair "Split Fair Window")
+           (?v aw-split-window-vert "Split Vert Window")
+           (?b aw-split-window-horz "Split Horz Window")
+           (?o delete-other-windows "Delete Other Windows")
+           (?? aw-show-dispatch-help "Help"))))
 
 (after! dired
   (use-package! dired-hide-dotfiles)
@@ -221,7 +227,7 @@
          (markdown-mode . jinx-mode)
          (text-mode . jinx-mode))
   :config
-  (setopt jinx-languages "en_US,it_IT"))
+  (setq! jinx-languages "en_US,it_IT"))
 
 (use-package! google-translate
   :config
@@ -358,27 +364,30 @@ of delete the previous word."
    :desc "undo" "u" #'tab-undo)))
 
 (after! evil
-  (setopt +evil-want-o/O-to-continue-comments nil
-          evil-disable-insert-state-bindings t
-          evil-move-cursor-back nil
-          evil-kill-on-visual-paste nil))
+  (setq! +evil-want-o/O-to-continue-comments nil
+         evil-disable-insert-state-bindings t
+         evil-move-cursor-back nil
+         evil-kill-on-visual-paste nil))
 
 (use-package! org-modern
-  :hook
-  ((org-mode . org-modern-mode)
-   (org-agenda-finalize . org-modern-agenda))
+  ;; :hook
+  ;; ((org-mode . org-modern-mode)
+  ;;  (org-agenda-finalize . org-modern-agenda))
   :config
-  (setopt org-modern-table nil
-          org-modern-star nil
-          org-modern-block-fringe nil))
+  (setq! org-modern-table nil
+         org-modern-star nil
+         org-modern-block-fringe nil))
+
+(use-package! org-appear
+  :config)
 
 (use-package! org-latex-preview
   :config
   (plist-put org-latex-preview-appearance-options
              :page-width 0.8)
   (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
-  (setopt org-latex-preview-live t)
-  (setopt org-latex-preview-live-debounce 0.25))
+  (setq! org-latex-preview-live t)
+  (setq! org-latex-preview-live-debounce 0.25))
 
 (use-package! trashed
   :commands (trashed)
@@ -453,7 +462,11 @@ of delete the previous word."
   :config
   (set-formatter! 'gleam-ts-format '("gleam" "format" "--stdin") :modes '(gleam-ts-mode))
   (when (modulep! :tools lsp +eglot)
-    (set-eglot-client! 'gleam-ts-mode '("gleam" "lsp"))))
+    (set-eglot-client! 'gleam-ts-mode '("gleam" "lsp")))
+  (set-electric! 'gleam-ts-mode :words '("|>" ))
+  (map! :map gleam-ts-mode-map
+        (:localleader
+         "f" #'gleam-ts-format)))
 
 (after! gleam-ts-mode
   (unless (treesit-language-available-p 'gleam)
